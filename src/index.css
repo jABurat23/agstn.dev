@@ -1,0 +1,428 @@
+@import url("https://fonts.googleapis.com/css2?family=Changa+One:ital@0;1&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap");
+@import "tailwindcss";
+
+:root {
+  --ink: #f3f6f8;
+  --deep-surface: #e9eef2;
+  --raised-surface: #fff;
+  --primary-text: #101a27;
+  --secondary-text: #526274;
+  --muted-text: #5f7082;
+  --primary-accent: #087f8c;
+  --secondary-accent: #315fcb;
+  --hairline: rgb(16 26 39 / 15%);
+  --portrait-halo: rgb(8 127 140 / 13%);
+  font-family: "Inter", sans-serif;
+  color-scheme: light;
+}
+
+.dark {
+  --ink: #070b12;
+  --deep-surface: #0d1420;
+  --raised-surface: #121d2b;
+  --primary-text: #ecf4fa;
+  --secondary-text: #a5b4c4;
+  --muted-text: #718398;
+  --primary-accent: #62e6f2;
+  --secondary-accent: #5b8cff;
+  --hairline: rgb(165 180 196 / 16%);
+  --portrait-halo: rgb(98 230 242 / 14%);
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  cursor: none;
+  background: #fff;
+}
+
+/* Keep the page behind the scrollbar in step with the theme toggle. */
+body:has(.dark) {
+  background: #000;
+}
+
+button,
+a {
+  cursor: none;
+}
+
+::selection {
+  background: #fff;
+  color: #000;
+}
+
+.hero-nav-links a {
+  color: var(--secondary-text);
+}
+
+.hero-cta {
+  border: 1px solid color-mix(in srgb, var(--primary-accent) 58%, transparent);
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.hero-cta:hover {
+  border-color: var(--primary-accent);
+  background-color: color-mix(in srgb, var(--primary-accent) 10%, transparent);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--primary-accent) 18%, transparent);
+}
+
+.hero-cta:focus-visible {
+  outline: 2px solid var(--primary-accent);
+  outline-offset: 4px;
+}
+
+.portrait-stage::before {
+  position: absolute;
+  z-index: -1;
+  inset: 10% 1% 6%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 50% 44%,
+    color-mix(in srgb, var(--primary-accent) 21%, transparent),
+    var(--portrait-halo) 40%,
+    color-mix(in srgb, var(--secondary-accent) 9%, transparent) 62%,
+    transparent 76%
+  );
+  content: "";
+  filter: blur(20px);
+  pointer-events: none;
+}
+
+.portrait-canvas canvas {
+  -webkit-mask-image: radial-gradient(ellipse at 50% 48%, #000 48%, transparent 82%);
+  mask-image: radial-gradient(ellipse at 50% 48%, #000 48%, transparent 82%);
+}
+
+.experience-journey {
+  position: relative;
+  height: calc(300svh + (var(--journey-entries, 1) - 1) * 80svh);
+}
+
+/* Transparent so the section blends into the page instead of showing a tinted rectangle. */
+.experience-journey-stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  min-height: 560px;
+  overflow: hidden;
+  isolation: isolate;
+  background: transparent;
+}
+
+.journey-hero-copy {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 0;
+  width: min(59%, 750px);
+  transform: translateY(-50%);
+  opacity: var(--hero-opacity, 1);
+}
+
+.journey-portrait {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: var(--portrait-left, 55%);
+  width: min(39%, 500px);
+  transform: translateY(-50%);
+}
+
+.journey-timeline {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  right: 1%;
+  width: 38%;
+  max-width: 490px;
+  transform: translateY(-46%);
+  opacity: var(--timeline-opacity, 0);
+}
+
+.journey-timeline h2 {
+  margin: 0 0 38px;
+  font-size: clamp(1.75rem, 3vw, 2.6rem);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+}
+
+.journey-timeline-list {
+  position: relative;
+  display: grid;
+  gap: clamp(22px, 5vh, 48px);
+  margin: 0;
+  padding: 0 0 0 25px;
+  list-style: none;
+}
+
+.journey-timeline-list::before {
+  position: absolute;
+  top: 7px;
+  bottom: 9px;
+  left: 3px;
+  width: 1px;
+  background: var(--hairline);
+  content: "";
+}
+
+.journey-timeline-item {
+  position: relative;
+  color: var(--muted-text);
+  transition:
+    color 250ms ease,
+    transform 300ms ease;
+}
+
+.journey-timeline-item::before {
+  position: absolute;
+  top: 5px;
+  left: -26px;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--muted-text);
+  border-radius: 50%;
+  background: var(--ink);
+  content: "";
+  transition:
+    border-color 250ms ease,
+    background-color 250ms ease;
+}
+
+.journey-timeline-item.is-active {
+  color: var(--primary-text);
+  transform: translateX(3px);
+}
+
+.journey-timeline-item.is-active::before {
+  border-color: var(--primary-accent);
+  background: var(--primary-accent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--primary-accent) 34%, transparent);
+}
+
+.journey-timeline-date {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted-text);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.journey-timeline-item h3 {
+  margin: 0;
+  font-size: clamp(1.1rem, 1.7vw, 1.4rem);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+
+.journey-timeline-item p {
+  max-width: 390px;
+  margin: 9px 0 0;
+  color: var(--secondary-text);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.journey-scroll-cue {
+  position: absolute;
+  right: 0;
+  bottom: 28px;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--muted-text);
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  opacity: var(--scroll-cue-opacity, 1);
+}
+
+.journey-scroll-cue::after {
+  width: 28px;
+  height: 1px;
+  background: var(--hairline);
+  content: "";
+}
+
+@media (max-width: 1023px) {
+  .portrait-stage::before {
+    inset: 8% 0 5%;
+  }
+}
+
+@media (max-width: 760px) {
+  .experience-journey {
+    height: auto;
+  }
+
+  .experience-journey-stage {
+    position: relative;
+    top: auto;
+    display: flex;
+    height: auto;
+    min-height: 0;
+    flex-direction: column;
+    align-items: stretch;
+    overflow: visible;
+    padding-block: 56px 46px;
+  }
+
+  .journey-hero-copy {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: auto;
+    transform: none;
+    opacity: 1 !important;
+  }
+
+  .journey-portrait {
+    position: relative;
+    top: auto;
+    left: auto !important;
+    width: min(100%, 390px);
+    margin: 20px auto 24px;
+    transform: none;
+  }
+
+  .journey-timeline {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: auto;
+    max-width: none;
+    margin-top: 20px;
+    transform: none;
+    opacity: 1 !important;
+  }
+
+  .journey-timeline h2 {
+    margin-bottom: 28px;
+    font-size: 2rem;
+  }
+
+  .journey-timeline-list {
+    gap: 28px;
+  }
+
+  .journey-scroll-cue {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .experience-journey {
+    height: auto;
+  }
+
+  .experience-journey-stage {
+    position: relative;
+    top: auto;
+    display: grid;
+    height: auto;
+    min-height: 100svh;
+    grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+    align-items: center;
+    gap: 32px;
+    overflow: visible;
+    padding-block: 56px;
+  }
+
+  .journey-hero-copy {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: auto;
+    transform: none;
+    opacity: 1 !important;
+  }
+
+  .journey-portrait {
+    position: relative;
+    top: auto;
+    left: auto !important;
+    width: 100%;
+    transform: none;
+  }
+
+  .journey-timeline {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 100%;
+    max-width: none;
+    grid-column: 1 / -1;
+    transform: none;
+    opacity: 1 !important;
+  }
+
+  .journey-scroll-cue {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) and (prefers-reduced-motion: reduce) {
+  .experience-journey-stage {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .journey-portrait {
+    width: min(100%, 390px);
+    margin: 20px auto 24px;
+  }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #444;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+   /* Dim the other project rows while one is hovered or focused. */
+   @media (hover: hover) {
+     .project-list:hover > .project-row:not(:hover) {
+       opacity: 0.4;
+     }
+   }
+
+   .project-list:focus-within > .project-row:not(:focus-within) {
+     opacity: 0.4;
+   }
