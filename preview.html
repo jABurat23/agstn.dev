@@ -1,16 +1,17 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Minimal preview of the AG$TN portfolio navigation and hero."
+    <title>AG$TN — Micro-Geometric Shard Trail Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Changa+One:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
     />
-    <title>AG$TN — Hero Preview</title>
     <style>
       :root {
-        color-scheme: dark;
         --ink: #070b12;
         --deep-surface: #0d1420;
         --raised-surface: #121d2b;
@@ -19,459 +20,802 @@
         --muted-text: #718398;
         --primary-accent: #62e6f2;
         --secondary-accent: #5b8cff;
-        --hairline: rgb(165 180 196 / 16%);
-        --halo: rgb(98 230 242 / 14%);
+        --hairline: rgba(165, 180, 196, 0.16);
+        color-scheme: dark;
       }
 
       [data-theme="light"] {
-        color-scheme: light;
         --ink: #f3f6f8;
         --deep-surface: #e9eef2;
-        --raised-surface: #fff;
+        --raised-surface: #ffffff;
         --primary-text: #101a27;
         --secondary-text: #526274;
         --muted-text: #5f7082;
         --primary-accent: #087f8c;
         --secondary-accent: #315fcb;
-        --hairline: rgb(16 26 39 / 15%);
-        --halo: rgb(98 230 242 / 21%);
+        --hairline: rgba(16, 26, 39, 0.15);
+        color-scheme: light;
       }
 
-      *,
-      *::before,
-      *::after {
+      *, *::before, *::after {
         box-sizing: border-box;
       }
 
-      html {
-        min-width: 320px;
-        background: var(--ink);
-      }
-
-      body {
-        min-width: 320px;
-        min-height: 100vh;
+      html, body {
         margin: 0;
+        padding: 0;
+        min-height: 100vh;
         background: var(--ink);
         color: var(--primary-text);
-        font-family:
-          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-          "Segoe UI", sans-serif;
-        transition:
-          background-color 250ms ease,
-          color 250ms ease;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        overflow-x: hidden;
+        transition: background-color 300ms ease, color 300ms ease;
       }
 
-      button,
-      a {
-        color: inherit;
-        font: inherit;
+      @media (hover: hover) and (pointer: fine) and (min-width: 768px) {
+        body, button, a, input, select {
+          cursor: none !important;
+        }
       }
 
-      a {
-        text-decoration: none;
+      /* Micro-Geometric Shard Canvas */
+      #shard-canvas {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 20;
+        pointer-events: none;
       }
 
-      a:hover {
-        color: var(--primary-accent);
+      /* Custom Cursor Ring */
+      #cursor-ring {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 22px;
+        height: 22px;
+        border: 1px solid var(--primary-text);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate3d(-100px, -100px, 0) translate(-50%, -50%);
+        transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, opacity 200ms ease;
+        mix-blend-mode: difference;
+        display: none;
       }
 
-      :focus-visible {
-        outline: 2px solid var(--primary-accent);
-        outline-offset: 5px;
+      @media (hover: hover) and (pointer: fine) and (min-width: 768px) {
+        #cursor-ring {
+          display: block;
+        }
       }
 
-      .shell {
-        width: min(100% - 48px, 1440px);
-        margin-inline: auto;
+      #cursor-ring.is-hover {
+        transform: translate3d(-100px, -100px, 0) translate(-50%, -50%) scale(0.4);
+        background-color: #ffffff;
+        border-color: #ffffff;
       }
 
-      .nav {
-        min-height: 88px;
+      /* Hero Content Layer */
+      .layout-container {
+        position: relative;
+        z-index: 2;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 28px 80px;
+      }
+
+      /* Navigation */
+      nav {
         display: flex;
+        height: 96px;
         align-items: center;
         justify-content: flex-end;
-        gap: clamp(20px, 3vw, 42px);
         border-bottom: 1px solid var(--hairline);
       }
 
-      .nav a {
-        color: var(--secondary-text);
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 28px;
         font-size: 14px;
         font-weight: 500;
-        transition: color 160ms ease;
       }
 
-      .theme-toggle {
-        width: 36px;
-        height: 36px;
-        display: grid;
-        place-items: center;
-        padding: 0;
-        border: 0;
-        background: transparent;
+      .nav-links a {
         color: var(--secondary-text);
-        cursor: pointer;
-        transition: color 160ms ease;
+        text-decoration: none;
+        transition: color 180ms ease;
       }
 
-      .theme-toggle:hover {
+      .nav-links a:hover {
         color: var(--primary-accent);
       }
 
-      .theme-toggle svg {
-        width: 19px;
-        height: 19px;
-        fill: none;
-        stroke: currentColor;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        stroke-width: 1.6;
-      }
-
-      .hero {
-        min-height: min(760px, calc(100svh - 88px));
-        display: grid;
-        grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+      .theme-btn {
+        background: transparent;
+        border: 1px solid var(--hairline);
+        color: var(--secondary-text);
+        border-radius: 9999px;
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
         align-items: center;
-        gap: clamp(24px, 5vw, 76px);
-        padding-block: clamp(44px, 8vh, 92px);
+        justify-content: center;
+        transition: border-color 180ms ease, color 180ms ease, background-color 180ms ease;
       }
 
-      .hero-copy {
-        min-width: 0;
-        padding-block: 20px;
+      .theme-btn:hover {
+        border-color: var(--primary-accent);
+        color: var(--primary-accent);
       }
 
-      h1 {
+      /* Hero Stage */
+      .hero-stage {
+        padding-top: clamp(60px, 12vh, 120px);
+        display: grid;
+        grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
+        gap: 48px;
+        align-items: center;
+      }
+
+      .wordmark {
+        font-family: 'Changa One', sans-serif;
+        font-size: clamp(4.5rem, 11vw, 9.5rem);
+        font-weight: 400;
+        line-height: 0.84;
+        letter-spacing: -0.09em;
         margin: 0;
-        font-family:
-          "Arial Black", Inter, ui-sans-serif, system-ui, sans-serif;
-        font-size: clamp(4rem, 9.4vw, 9rem);
-        font-weight: 900;
-        letter-spacing: -0.095em;
-        line-height: 0.86;
-        white-space: nowrap;
+        user-select: none;
       }
 
-      .wordmark-inner {
-        letter-spacing: -0.11em;
-      }
-
-      .typing-cursor {
-        display: inline-block;
-        width: 0.055em;
-        height: 0.58em;
-        margin-left: 0.09em;
-        background: var(--primary-accent);
-        vertical-align: 0.01em;
-        animation: cursor-blink 900ms steps(2, start) infinite;
-      }
-
-      .intro {
-        max-width: 570px;
-        margin: clamp(30px, 5vw, 50px) 0 0;
-        color: var(--secondary-text);
-        font-size: clamp(16px, 1.5vw, 19px);
-        line-height: 1.8;
-      }
-
-      .details {
+      .role-line {
+        margin-top: 28px;
+        font-size: clamp(1.6rem, 3.2vw, 2.75rem);
+        font-weight: 500;
+        letter-spacing: -0.03em;
         display: flex;
-        flex-wrap: wrap;
-        gap: 12px 26px;
-        margin-top: 25px;
-        color: var(--muted-text);
-        font-size: 12px;
-        line-height: 1.6;
+        align-items: center;
+        gap: 16px;
       }
 
-      .details span {
-        white-space: nowrap;
+      .role-line i {
+        display: block;
+        height: 1px;
+        width: clamp(60px, 10vw, 160px);
+        background: var(--muted-text);
       }
 
-      .details strong {
-        margin-right: 6px;
+      .summary-p {
+        margin-top: 28px;
+        max-width: 580px;
         color: var(--secondary-text);
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing: 0.09em;
+        font-size: clamp(1rem, 1.35vw, 1.18rem);
+        line-height: 1.68;
+      }
+
+      .details-grid {
+        margin-top: 36px;
+        display: grid;
+        grid-template-columns: repeat(3, max-content);
+        gap: 40px;
+        font-size: 12px;
+      }
+
+      .detail-item span.label {
+        display: block;
         text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--muted-text);
+        margin-bottom: 4px;
+        font-weight: 500;
       }
 
-      .portrait {
+      .detail-item span.val {
+        color: var(--secondary-text);
+        letter-spacing: 0.04em;
+        font-weight: 500;
+      }
+
+      .cta-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 40px;
+        padding: 12px 22px;
+        border: 1px solid color-mix(in srgb, var(--primary-accent) 58%, transparent);
+        color: var(--primary-text);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        border-radius: 2px;
+        transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+      }
+
+      .cta-btn:hover {
+        border-color: var(--primary-accent);
+        background-color: color-mix(in srgb, var(--primary-accent) 12%, transparent);
+        box-shadow: 0 0 24px color-mix(in srgb, var(--primary-accent) 20%, transparent);
+      }
+
+      /* Portrait Placeholder Artwork */
+      .portrait-box {
         position: relative;
-        width: min(100%, 470px);
-        aspect-ratio: 0.9;
-        justify-self: end;
-        isolation: isolate;
+        aspect-ratio: 4 / 4.6;
+        width: 100%;
+        max-width: 440px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
-      .portrait::before {
+      .portrait-halo {
         position: absolute;
-        z-index: -1;
-        inset: 10% 1% 6%;
+        inset: 12% 4% 8%;
         border-radius: 50%;
-        background:
-          radial-gradient(
-            ellipse at 47% 43%,
-            rgb(98 230 242 / 20%) 0%,
-            var(--halo) 36%,
-            rgb(91 140 255 / 9%) 59%,
-            transparent 74%
-          );
-        content: "";
-        filter: blur(15px);
+        background: radial-gradient(
+          ellipse at 50% 46%,
+          color-mix(in srgb, var(--primary-accent) 26%, transparent),
+          color-mix(in srgb, var(--secondary-accent) 14%, transparent) 45%,
+          transparent 75%
+        );
+        filter: blur(28px);
+        pointer-events: none;
       }
 
-      .portrait svg {
+      .portrait-svg-frame {
+        position: relative;
+        z-index: 2;
         width: 100%;
         height: 100%;
-        overflow: visible;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--hairline);
+        background: color-mix(in srgb, var(--deep-surface) 40%, transparent);
+        backdrop-filter: blur(8px);
       }
 
-      .portrait-note {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        clip-path: inset(50%);
+      /* Interactive Tuning Panel */
+      .tuning-panel {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 100;
+        background: color-mix(in srgb, var(--deep-surface) 92%, transparent);
+        border: 1px solid var(--hairline);
+        backdrop-filter: blur(14px);
+        padding: 16px 20px;
+        border-radius: 14px;
+        font-size: 12px;
+        box-shadow: 0 24px 48px rgba(0,0,0,0.5);
+        display: flex;
+        flex-direction: column;
+        gap: 11px;
+        width: 330px;
       }
 
-      .light-icon {
-        display: none;
+      .tuning-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+        color: var(--primary-text);
+        letter-spacing: -0.01em;
       }
 
-      [data-theme="light"] .dark-icon {
-        display: none;
+      .tuning-badge {
+        font-size: 9px;
+        padding: 2px 7px;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--primary-accent) 18%, transparent);
+        color: var(--primary-accent);
+        border: 1px solid color-mix(in srgb, var(--primary-accent) 35%, transparent);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-weight: 600;
       }
 
-      [data-theme="light"] .light-icon {
-        display: block;
+      .tuning-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--secondary-text);
       }
 
-      @keyframes cursor-blink {
-        to {
-          visibility: hidden;
-        }
+      .tuning-row label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 130px;
       }
 
-      @media (min-width: 1450px) {
-        h1 {
-          font-size: 136px;
-        }
+      .tuning-row input[type="range"] {
+        flex: 1;
+        accent-color: var(--primary-accent);
       }
 
-      @media (max-width: 760px) {
-        .shell {
-          width: min(100% - 40px, 600px);
-        }
-
-        .nav {
-          min-height: 72px;
-          gap: 22px;
-        }
-
-        .nav a {
-          font-size: 13px;
-        }
-
-        .hero {
-          min-height: auto;
-          grid-template-columns: minmax(0, 1fr);
-          gap: 22px;
-          padding-block: 56px 42px;
-        }
-
-        .hero-copy {
-          padding: 0;
-        }
-
-        h1 {
-          font-size: clamp(3.25rem, 12.7vw, 6rem);
-        }
-
-        .intro {
-          max-width: 540px;
-          margin-top: 30px;
-        }
-
-        .details {
-          gap: 8px 18px;
-          margin-top: 18px;
-        }
-
-        .portrait {
-          width: min(100%, 390px);
-          justify-self: center;
-          margin-top: 4px;
-        }
+      .tuning-val {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        color: var(--primary-accent);
+        width: 32px;
+        text-align: right;
       }
 
-      @media (max-width: 380px) {
-        .shell {
-          width: min(100% - 32px, 600px);
-        }
-
-        h1 {
-          font-size: clamp(3rem, 12.2vw, 3.35rem);
-        }
+      .palette-select {
+        background: var(--ink);
+        color: var(--primary-text);
+        border: 1px solid var(--hairline);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        outline: none;
+        flex: 1;
       }
 
-      @media (prefers-reduced-motion: reduce) {
-        *,
-        *::before,
-        *::after {
-          scroll-behavior: auto !important;
-          animation-duration: 0.01ms !important;
-          animation-iteration-count: 1 !important;
-          transition-duration: 0.01ms !important;
+      @media (max-width: 900px) {
+        .hero-stage {
+          grid-template-columns: 1fr;
+          gap: 40px;
+        }
+        .tuning-panel {
+          bottom: 12px;
+          right: 12px;
+          width: calc(100vw - 24px);
         }
       }
     </style>
   </head>
   <body>
-    <main class="shell">
-      <nav class="nav" aria-label="Main navigation">
-        <a href="#projects">Projects</a>
-        <a href="#experience">Experience</a>
-        <button
-          class="theme-toggle"
-          type="button"
-          aria-label="Switch to light theme"
-          title="Toggle theme"
-        >
-          <svg class="dark-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="12" r="4" />
-            <path
-              d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"
-            />
-          </svg>
-          <svg class="light-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M20.5 15.5A8.5 8.5 0 0 1 8.5 3.5 8.5 8.5 0 1 0 20.5 15.5Z" />
-          </svg>
-        </button>
+    <!-- Real-time Canvas for Micro-Geometric Shards -->
+    <canvas id="shard-canvas"></canvas>
+
+    <!-- Interactive Cursor Follower -->
+    <div id="cursor-ring" aria-hidden="true"></div>
+
+    <div class="layout-container">
+      <nav aria-label="Main navigation">
+        <div class="nav-links">
+          <a href="#projects" class="interactive-el">Projects</a>
+          <a href="#experience" class="interactive-el">Experience</a>
+          <button id="theme-toggle" class="theme-btn interactive-el" aria-label="Toggle theme">
+            <svg id="theme-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          </button>
+        </div>
       </nav>
 
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="hero-copy">
-          <h1 id="hero-title" aria-label="[AG$TN]">
-            <span aria-hidden="true">[</span><span class="wordmark-inner" aria-hidden="true"></span><span aria-hidden="true">]</span>
-          </h1>
-
-          <p class="intro">
-            BSIT student and developer building lightweight digital systems,
-            interfaces, and tools with an emphasis on performance, simplicity,
-            and control.
+      <section class="hero-stage">
+        <div>
+          <h1 class="wordmark">AG$TN</h1>
+          <div class="role-line">
+            <span>Developer</span>
+            <i aria-hidden="true"></i>
+            <span style="color: var(--primary-accent);">Builder</span>
+          </div>
+          <p class="summary-p">
+            An Information Technology student and independent developer who enjoys building practical software, exploring systems, and turning ideas into simple, thoughtful digital experiences.
           </p>
+          <div class="details-grid">
+            <div class="detail-item">
+              <span class="label">Location</span>
+              <span class="val">PH</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Status</span>
+              <span class="val">Building</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Focus</span>
+              <span class="val">Software / Web</span>
+            </div>
+          </div>
+          <a href="#projects" class="cta-btn interactive-el">
+            <span>View work</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        </div>
 
-          <div class="details" aria-label="Profile details">
-            <span><strong>Location</strong> PH</span>
-            <span><strong>Status</strong> Building</span>
-            <span><strong>Focus</strong> Software / Web</span>
+        <div class="portrait-box">
+          <div class="portrait-halo"></div>
+          <div class="portrait-svg-frame">
+            <span style="font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-text);">
+              3D Portrait Stage
+            </span>
           </div>
         </div>
-
-        <div class="portrait" role="img" aria-label="Portrait layout preview; simplified illustration, not the live 3D model.">
-          <span class="portrait-note">Simplified portrait artwork placeholder for layout review.</span>
-          <svg viewBox="0 0 460 510" aria-hidden="true">
-            <defs>
-              <radialGradient id="halo" cx="50%" cy="46%" r="55%">
-                <stop offset="0" stop-color="#62e6f2" stop-opacity=".18" />
-                <stop offset=".5" stop-color="#5b8cff" stop-opacity=".11" />
-                <stop offset="1" stop-color="#070b12" stop-opacity="0" />
-              </radialGradient>
-              <linearGradient id="skin" x1="15%" y1="0%" x2="85%" y2="100%">
-                <stop offset="0" stop-color="#f3f7fa" />
-                <stop offset=".62" stop-color="#a5b4c4" />
-                <stop offset="1" stop-color="#718398" />
-              </linearGradient>
-              <linearGradient id="shirt" x1="20%" y1="0%" x2="85%" y2="100%">
-                <stop offset="0" stop-color="#5b8cff" stop-opacity=".76" />
-                <stop offset=".58" stop-color="#183866" stop-opacity=".9" />
-                <stop offset="1" stop-color="#0d1420" />
-              </linearGradient>
-              <linearGradient id="hair" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0" stop-color="#25364a" />
-                <stop offset="1" stop-color="#101a27" />
-              </linearGradient>
-              <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="18" />
-              </filter>
-            </defs>
-            <ellipse cx="230" cy="255" rx="210" ry="230" fill="url(#halo)" />
-            <ellipse cx="230" cy="432" rx="115" ry="25" fill="#62e6f2" opacity=".12" filter="url(#softGlow)" />
-            <path
-              d="M72 510c11-91 71-145 158-151 88 6 148 60 158 151H72Z"
-              fill="url(#shirt)"
-            />
-            <path
-              d="M181 341c7-23 9-45 7-66h84c-2 24 1 47 11 68l-50 41-52-43Z"
-              fill="url(#skin)"
-            />
-            <path
-              d="M145 158c0-67 35-109 86-109 55 0 88 42 86 111l-8 95c-5 47-38 83-78 83-42 0-74-36-79-83l-7-97Z"
-              fill="url(#skin)"
-            />
-            <path
-              d="M145 167c-9-66 3-119 47-142 42-22 99-11 124 28 16 25 17 56 9 91-10-13-22-24-37-31-28-14-49-34-63-55-16 39-42 68-80 91Z"
-              fill="url(#hair)"
-            />
-            <path d="M163 206c14-9 29-9 43-2" fill="none" stroke="#26384d" stroke-width="7" stroke-linecap="round" />
-            <path d="M254 204c14-7 28-7 42 2" fill="none" stroke="#26384d" stroke-width="7" stroke-linecap="round" />
-            <ellipse cx="184" cy="226" rx="8" ry="5" fill="#101a27" />
-            <ellipse cx="273" cy="226" rx="8" ry="5" fill="#101a27" />
-            <path d="M228 222c-4 20-10 40-16 54 8 6 18 7 27 3" fill="none" stroke="#718398" stroke-width="5" stroke-linecap="round" />
-            <path d="M201 297c18 11 39 11 57 0" fill="none" stroke="#526274" stroke-width="5" stroke-linecap="round" />
-            <path d="M75 483c20-71 61-105 117-119l38 32-46 114H75Z" fill="#62e6f2" opacity=".12" />
-            <path d="M385 483c-20-71-61-105-117-119l-38 32 46 114h109Z" fill="#5b8cff" opacity=".17" />
-          </svg>
-        </div>
       </section>
-    </main>
+    </div>
+
+    <!-- Tuning Controls for Evaluating Micro Shards -->
+    <div class="tuning-panel">
+      <div class="tuning-header">
+        <span>Geometric Shard Trail</span>
+        <span class="tuning-badge">Preview</span>
+      </div>
+
+      <div class="tuning-row">
+        <span>Geometry Style:</span>
+        <select id="geometry-select" class="palette-select interactive-el">
+          <option value="tetra-poly" selected>Low-Poly Shards (Tetrahedrons & Octahedrons)</option>
+          <option value="wire-crystals">Wireframe Facets (Transparent Hairlines)</option>
+          <option value="solid-diamonds">Solid Obsidian Crystals</option>
+        </select>
+      </div>
+
+      <div class="tuning-row">
+        <label for="size-slider">Shard Scale:</label>
+        <input id="size-slider" type="range" min="3" max="14" value="6" class="interactive-el" />
+        <span id="size-val" class="tuning-val">6px</span>
+      </div>
+
+      <div class="tuning-row">
+        <label for="density-slider">Trail Density:</label>
+        <input id="density-slider" type="range" min="1" max="5" value="2" class="interactive-el" />
+        <span id="density-val" class="tuning-val">2x</span>
+      </div>
+
+      <div class="tuning-row">
+        <label for="lifespan-slider">Dissolve Speed:</label>
+        <input id="lifespan-slider" type="range" min="300" max="1200" value="600" class="interactive-el" />
+        <span id="lifespan-val" class="tuning-val">0.6s</span>
+      </div>
+    </div>
 
     <script>
-      const root = document.documentElement;
-      const themeButton = document.querySelector(".theme-toggle");
-      const wordmark = document.querySelector(".wordmark-inner");
-      const fullName = "AG$TN";
-      const reducedMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
+      "use strict";
 
-      themeButton.addEventListener("click", () => {
-        const nextTheme =
-          root.dataset.theme === "dark" ? "light" : "dark";
-        root.dataset.theme = nextTheme;
-        themeButton.setAttribute(
-          "aria-label",
-          nextTheme === "dark" ? "Switch to light theme" : "Switch to dark theme",
-        );
+      /* ============================================================
+         1. Custom Cursor Ring Physics
+         ============================================================ */
+      const cursorRing = document.getElementById("cursor-ring");
+      const ringPos = { x: -100, y: -100 };
+      const mousePos = { x: -100, y: -100 };
+      let cursorPlaced = false;
+
+      window.addEventListener("pointermove", (e) => {
+        mousePos.x = e.clientX;
+        mousePos.y = e.clientY;
+        if (!cursorPlaced) {
+          cursorPlaced = true;
+          ringPos.x = mousePos.x;
+          ringPos.y = mousePos.y;
+        }
+      }, { passive: true });
+
+      function updateCursorRing() {
+        const ease = 0.22;
+        ringPos.x += (mousePos.x - ringPos.x) * ease;
+        ringPos.y += (mousePos.y - ringPos.y) * ease;
+        cursorRing.style.transform = `translate3d(${ringPos.x}px, ${ringPos.y}px, 0) translate(-50%, -50%)`;
+        requestAnimationFrame(updateCursorRing);
+      }
+      requestAnimationFrame(updateCursorRing);
+
+      document.querySelectorAll(".interactive-el").forEach((el) => {
+        el.addEventListener("pointerenter", () => cursorRing.classList.add("is-hover"));
+        el.addEventListener("pointerleave", () => cursorRing.classList.remove("is-hover"));
       });
 
-      if (reducedMotion) {
-        wordmark.textContent = fullName;
-      } else {
-        let index = 0;
-        const typeNextCharacter = () => {
-          index += 1;
-          wordmark.textContent = fullName.slice(0, index);
+      /* ============================================================
+         2. Theme Toggle Handling
+         ============================================================ */
+      const themeToggle = document.getElementById("theme-toggle");
+      themeToggle.addEventListener("click", () => {
+        const currentTheme = document.documentElement.dataset.theme;
+        const nextTheme = currentTheme === "dark" ? "light" : "dark";
+        document.documentElement.dataset.theme = nextTheme;
+      });
 
-          if (index < fullName.length) {
-            window.setTimeout(typeNextCharacter, 150);
-          } else {
-            document.querySelector(".typing-cursor")?.remove();
-          }
-        };
+      /* ============================================================
+         3. 3D Micro-Geometric Shard Particle Engine (Canvas 2D)
+         ============================================================ */
+      const canvas = document.getElementById("shard-canvas");
+      const ctx = canvas.getContext("2d");
 
-        wordmark.insertAdjacentHTML(
-          "afterend",
-          '<span class="typing-cursor" aria-hidden="true"></span>',
-        );
-        window.setTimeout(typeNextCharacter, 180);
+      function resize() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = window.innerWidth * dpr;
+        canvas.height = window.innerHeight * dpr;
+        ctx.scale(dpr, dpr);
       }
+      resize();
+      window.addEventListener("resize", resize);
+
+      const config = {
+        size: 6,
+        density: 2,
+        lifespan: 600,
+        style: "tetra-poly"
+      };
+
+      // 3D Polyhedron Models (Normalized coordinates)
+      // 1. Tetrahedron
+      const TETRA_VERTICES = [
+        [1, 1, 1],
+        [-1, -1, 1],
+        [-1, 1, -1],
+        [1, -1, -1],
+      ].map(([x, y, z]) => [x * 0.7, y * 0.7, z * 0.7]);
+      const TETRA_FACES = [
+        [0, 1, 2],
+        [0, 2, 3],
+        [0, 3, 1],
+        [1, 3, 2],
+      ];
+
+      // 2. Octahedron (Diamond)
+      const OCTA_VERTICES = [
+        [0, 1.1, 0],
+        [0, -1.1, 0],
+        [1, 0, 0],
+        [-1, 0, 0],
+        [0, 0, 1],
+        [0, 0, -1],
+      ];
+      const OCTA_FACES = [
+        [0, 2, 4],
+        [0, 4, 3],
+        [0, 3, 5],
+        [0, 5, 2],
+        [1, 4, 2],
+        [1, 3, 4],
+        [1, 5, 3],
+        [1, 2, 5],
+      ];
+
+      const shards = [];
+
+      class Shard {
+        constructor(x, y, vx, vy) {
+          this.x = x;
+          this.y = y;
+          // Disperse slightly away from motion vector
+          const spread = (Math.random() - 0.5) * 1.8;
+          this.vx = vx * 0.15 + spread;
+          this.vy = vy * 0.15 + (Math.random() - 0.5) * 1.8;
+
+          this.created = performance.now();
+          this.duration = config.lifespan * (0.8 + Math.random() * 0.4);
+          this.size = config.size * (0.65 + Math.random() * 0.7);
+
+          // Type: 0 = Tetrahedron, 1 = Octahedron
+          this.type = Math.random() > 0.45 ? 0 : 1;
+
+          // 3D rotation angles & angular velocity
+          this.rx = Math.random() * Math.PI * 2;
+          this.ry = Math.random() * Math.PI * 2;
+          this.rz = Math.random() * Math.PI * 2;
+          this.vrx = (Math.random() - 0.5) * 0.12;
+          this.vry = (Math.random() - 0.5) * 0.12;
+          this.vrz = (Math.random() - 0.5) * 0.12;
+
+          // Color tint: cyan or blue
+          this.isCyan = Math.random() > 0.4;
+        }
+
+        update(dt) {
+          this.x += this.vx;
+          this.y += this.vy;
+          this.vx *= 0.94; // friction
+          this.vy *= 0.94;
+
+          this.rx += this.vrx;
+          this.ry += this.vry;
+          this.rz += this.vrz;
+        }
+
+        render(ctx, now, isDark) {
+          const age = now - this.created;
+          if (age >= this.duration) return false;
+
+          const progress = age / this.duration; // 0 to 1
+          const alpha = Math.max(0, 1 - Math.pow(progress, 1.4));
+          const currentScale = this.size * (1 - progress * 0.35);
+
+          // 3D rotation matrix calculation
+          const cx = Math.cos(this.rx), sx = Math.sin(this.rx);
+          const cy = Math.cos(this.ry), sy = Math.sin(this.ry);
+          const cz = Math.cos(this.rz), sz = Math.sin(this.rz);
+
+          const modelVertices = this.type === 0 ? TETRA_VERTICES : OCTA_VERTICES;
+          const faces = this.type === 0 ? TETRA_FACES : OCTA_FACES;
+
+          // Project vertices to 2D
+          const projected = modelVertices.map(([x, y, z]) => {
+            // Rot Y
+            let x1 = x * cy + z * sy;
+            let y1 = y;
+            let z1 = -x * sy + z * cy;
+
+            // Rot X
+            let x2 = x1;
+            let y2 = y1 * cx - z1 * sx;
+            let z2 = y1 * sx + z1 * cx;
+
+            // Rot Z
+            let x3 = x2 * cz - y2 * sz;
+            let y3 = x2 * sz + y2 * cz;
+            let z3 = z2;
+
+            return {
+              x: this.x + x3 * currentScale,
+              y: this.y + y3 * currentScale,
+              z: z3
+            };
+          });
+
+          // Palette selection based on theme
+          let strokeColor, fillColor;
+          if (isDark) {
+            strokeColor = this.isCyan
+              ? `rgba(98, 230, 242, ${alpha * 0.85})`
+              : `rgba(91, 140, 255, ${alpha * 0.75})`;
+            fillColor = config.style === "wire-crystals"
+              ? "transparent"
+              : `rgba(18, 29, 43, ${alpha * 0.65})`;
+          } else {
+            strokeColor = this.isCyan
+              ? `rgba(8, 127, 140, ${alpha * 0.85})`
+              : `rgba(49, 95, 203, ${alpha * 0.75})`;
+            fillColor = config.style === "wire-crystals"
+              ? "transparent"
+              : `rgba(220, 230, 240, ${alpha * 0.65})`;
+          }
+
+          ctx.lineWidth = 0.85;
+          ctx.strokeStyle = strokeColor;
+          ctx.fillStyle = fillColor;
+
+          // Draw faces with simple backface depth sorting
+          for (const [i0, i1, i2] of faces) {
+            const p0 = projected[i0];
+            const p1 = projected[i1];
+            const p2 = projected[i2];
+
+            // 2D Cross product for normal orientation
+            const crossZ = (p1.x - p0.x) * (p2.y - p0.y) - (p1.y - p0.y) * (p2.x - p0.x);
+
+            // In wireframe style, draw all edges; in solid style, draw front-facing facets
+            if (config.style === "wire-crystals" || crossZ > 0) {
+              ctx.beginPath();
+              ctx.moveTo(p0.x, p0.y);
+              ctx.lineTo(p1.x, p1.y);
+              ctx.lineTo(p2.x, p2.y);
+              ctx.closePath();
+
+              if (fillColor !== "transparent") ctx.fill();
+              ctx.stroke();
+            }
+          }
+
+          // Subtle core point highlight
+          if (config.style !== "wire-crystals" && alpha > 0.4) {
+            ctx.fillStyle = isDark ? `rgba(255, 255, 255, ${alpha * 0.6})` : `rgba(0, 0, 0, ${alpha * 0.5})`;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 0.75, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          return true;
+        }
+      }
+
+      /* ============================================================
+         4. Pointer Listeners & Shard Generation
+         ============================================================ */
+      let lastX = 0, lastY = 0;
+      let hasPrev = false;
+
+      window.addEventListener("pointermove", (e) => {
+        if (!hasPrev) {
+          hasPrev = true;
+          lastX = e.clientX;
+          lastY = e.clientY;
+          return;
+        }
+
+        const dx = e.clientX - lastX;
+        const dy = e.clientY - lastY;
+        const dist = Math.hypot(dx, dy);
+
+        // Generate shards proportionally to distance moved
+        if (dist > 4) {
+          const count = Math.min(Math.floor(dist / 14) * config.density, 4 * config.density);
+          for (let i = 0; i < count; i++) {
+            const lerp = Math.random();
+            const px = lastX + dx * lerp;
+            const py = lastY + dy * lerp;
+            shards.push(new Shard(px, py, dx, dy));
+          }
+          lastX = e.clientX;
+          lastY = e.clientY;
+        }
+      }, { passive: true });
+
+      // Click burst: generates a radial cluster of micro shards
+      window.addEventListener("pointerdown", (e) => {
+        for (let i = 0; i < 7; i++) {
+          const angle = (i / 7) * Math.PI * 2 + Math.random() * 0.4;
+          const speed = 12 + Math.random() * 18;
+          shards.push(new Shard(e.clientX, e.clientY, Math.cos(angle) * speed, Math.sin(angle) * speed));
+        }
+      });
+
+      /* ============================================================
+         5. Animation Loop
+         ============================================================ */
+      function animate() {
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+        const now = performance.now();
+        const isDark = document.documentElement.dataset.theme === "dark";
+
+        for (let i = shards.length - 1; i >= 0; i--) {
+          const shard = shards[i];
+          shard.update();
+          const alive = shard.render(ctx, now, isDark);
+          if (!alive) {
+            shards.splice(i, 1);
+          }
+        }
+
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+
+      // Ambient start pulse so user immediately sees the crystal shards
+      setTimeout(() => {
+        const cx = window.innerWidth * 0.48;
+        const cy = window.innerHeight * 0.42;
+        for (let i = 0; i < 6; i++) {
+          const angle = (i / 6) * Math.PI * 2;
+          shards.push(new Shard(cx, cy, Math.cos(angle) * 14, Math.sin(angle) * 14));
+        }
+      }, 300);
+
+      /* ============================================================
+         6. Tuning Panel Controls
+         ============================================================ */
+      const geoSelect = document.getElementById("geometry-select");
+      const sizeSlider = document.getElementById("size-slider");
+      const sizeVal = document.getElementById("size-val");
+      const densitySlider = document.getElementById("density-slider");
+      const densityVal = document.getElementById("density-val");
+      const lifeSlider = document.getElementById("lifespan-slider");
+      const lifeVal = document.getElementById("lifespan-val");
+
+      geoSelect.addEventListener("change", (e) => {
+        config.style = e.target.value;
+      });
+
+      sizeSlider.addEventListener("input", (e) => {
+        config.size = Number(e.target.value);
+        sizeVal.textContent = `${e.target.value}px`;
+      });
+
+      densitySlider.addEventListener("input", (e) => {
+        config.density = Number(e.target.value);
+        densityVal.textContent = `${e.target.value}x`;
+      });
+
+      lifeSlider.addEventListener("input", (e) => {
+        config.lifespan = Number(e.target.value);
+        lifeVal.textContent = `${(Number(e.target.value) / 1000).toFixed(1)}s`;
+      });
     </script>
   </body>
 </html>

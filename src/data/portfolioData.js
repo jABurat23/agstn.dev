@@ -1,38 +1,28 @@
-import { Globe, Mail } from "lucide-react";
-
 export const projects = [
   {
     id: "01",
-    name: "ANCHOR",
-    description: "Device management and telemetry platform.",
-    stack: ["React", "Fastify", "WebSocket"],
-  },
-  {
-    id: "02",
-    name: "DEVLENS",
-    description: "GitHub-inspired developer activity intelligence.",
-    stack: ["Next.js", "Tailwind", "MySQL"],
-  },
-  {
-    id: "03",
-    name: "UDB_LINK",
-    description: "Local-first USB reverse tethering utility.",
-    stack: ["Rust", "USB", "Network"],
+    name: "DOCKET",
+    description: "Replaces separate spreadsheets for budgeting and freelance work.",
+    stack: ["Next.js", "Supabase", "TypeScript"],
+    scene: "docket", // draws the 3D Docket object in this row (see DocketObject.jsx)
+    // Add href: "https://..." to a project once it has a real URL; its row then becomes a link.
   },
 ];
 
-export const technologies = [
-  "JavaScript",
-  "React",
-  "Next.js",
-  "Node.js",
-  "Tailwind",
-  "Rust",
-  "Git",
-  "Linux",
+export const stackGroups = [
+  { title: "Languages", items: ["JavaScript", "Rust"] },
+  { title: "Frameworks & runtime", items: ["React", "Next.js", "Node.js", "Tailwind"] },
+  { title: "Tools & systems", items: ["Git", "Linux"] },
 ];
 
+// Add a LinkedIn entry here when you have the real URL.
 export const socialLinks = [
-  { label: "Email", href: "mailto:agstn.dev@gmail.com", icon: Mail },
-  { label: "GitHub", href: "https://github.com/jABurat23", icon: Globe },
+  { label: "Email", href: "mailto:agstn.dev@gmail.com" },
+  { label: "GitHub", href: "https://github.com/jABurat23" },
+];
+
+// Credited in the footer.
+export const inspiredBy = [
+  { name: "Hamish Williams", href: "https://hamishw.com" },
+  { name: "Chánh Đại", href: "https://chanhdai.com" },
 ];

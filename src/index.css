@@ -37,7 +37,6 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  cursor: none;
   background: #fff;
 }
 
@@ -46,9 +45,12 @@ body:has(.dark) {
   background: #000;
 }
 
-button,
-a {
-  cursor: none;
+@media (hover: hover) and (pointer: fine) and (min-width: 768px) {
+  body,
+  button,
+  a {
+    cursor: none;
+  }
 }
 
 ::selection {
@@ -104,7 +106,7 @@ a {
 
 .experience-journey {
   position: relative;
-  height: calc(300svh + (var(--journey-entries, 1) - 1) * 80svh);
+  height: calc(360svh + var(--journey-entries, 1) * 80svh);
 }
 
 /* Transparent so the section blends into the page instead of showing a tinted rectangle. */
@@ -137,6 +139,25 @@ a {
   transform: translateY(-50%);
 }
 
+/* The About step sits in the same right-hand panel as the timeline; they hand over in turn. */
+.journey-about {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  right: 1%;
+  width: min(40%, 540px);
+  transform: translateY(-46%);
+  opacity: var(--about-opacity, 0);
+}
+
+.journey-about p {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--secondary-text);
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  line-height: 1.65;
+}
+
 .journey-timeline {
   position: absolute;
   z-index: 3;
@@ -148,6 +169,7 @@ a {
   opacity: var(--timeline-opacity, 0);
 }
 
+.journey-about h2,
 .journey-timeline h2 {
   margin: 0 0 38px;
   font-size: clamp(1.75rem, 3vw, 2.6rem);
@@ -248,11 +270,51 @@ a {
   opacity: var(--scroll-cue-opacity, 1);
 }
 
-.journey-scroll-cue::after {
-  width: 28px;
-  height: 1px;
-  background: var(--hairline);
-  content: "";
+.scroll-cue-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.scroll-mouse {
+  position: relative;
+  display: block;
+  width: 22px;
+  height: 36px;
+  border: 1.5px solid var(--muted-text);
+  border-radius: 12px;
+}
+
+.scroll-mouse i {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  width: 3px;
+  height: 7px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: var(--primary-text);
+  animation: scroll-dot 1.7s ease-in 2.4s infinite;
+}
+
+@keyframes scroll-dot {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  75%,
+  100% {
+    transform: translateY(11px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-mouse i {
+    animation: none;
+  }
 }
 
 @media (max-width: 1023px) {
@@ -296,6 +358,17 @@ a {
     transform: none;
   }
 
+  .journey-about {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: auto;
+    max-width: none;
+    margin-top: 20px;
+    transform: none;
+    opacity: 1 !important;
+  }
+
   .journey-timeline {
     position: relative;
     top: auto;
@@ -307,6 +380,7 @@ a {
     opacity: 1 !important;
   }
 
+  .journey-about h2,
   .journey-timeline h2 {
     margin-bottom: 28px;
     font-size: 2rem;
@@ -354,6 +428,17 @@ a {
     left: auto !important;
     width: 100%;
     transform: none;
+  }
+
+  .journey-about {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 100%;
+    max-width: none;
+    grid-column: 1 / -1;
+    transform: none;
+    opacity: 1 !important;
   }
 
   .journey-timeline {

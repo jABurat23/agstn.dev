@@ -109,4 +109,4 @@ export default function PortraitModel({
       <primitive object={portrait.root} />
     </group>
   );
-}4
+}
