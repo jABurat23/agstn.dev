@@ -1,69 +1,79 @@
 # AGSTN Portfolio: Agent Instructions
 
-Read this whole file before doing anything. It is the source of truth for this project.
-If a request conflicts with this file, stop and ask instead of guessing.
+Read this whole file first. It is the source of truth. If a request conflicts with it, stop and ask.
 
 ## Project
 
 Personal developer portfolio for **AGSTN**, a BSIT student and independent developer in the Philippines.
-Stack: Vite + React (JavaScript/JSX), Tailwind CSS v4 (`@tailwindcss/vite`), Three.js + `@react-three/fiber`, `lucide-react`.
-Production check: `npm run build`.
+Stack: Vite + React (JSX), Tailwind CSS v4 (`@tailwindcss/vite`), Three.js + `@react-three/fiber`, GSAP + ScrollTrigger, `lucide-react`.
+Check: `npm run build`.
 
 ## How to work (most important)
 
-1. **Edit only the files the user names.** If another file seems to need a change, say so and wait.
-2. **No refactors, renames, restyling, or "improvements" the user did not ask for.**
-3. **No new dependencies** unless the user explicitly approves. Update the lockfile through the package manager if one is approved.
-4. **Do not move on to the next task.** Finish the one requested change, show the diff, and stop.
-5. **Ask before major design or architecture decisions** that are not written here.
-6. **Reuse existing components and code** instead of duplicating logic.
-7. If the user pastes finished files, **apply them exactly as given.** Do not reinterpret or "fix" them.
-8. After a change, run `npm run build` and report the result. Do not claim something works if you did not run it.
+1. **Do the simplest thing that meets the task.** No extra abstractions, helpers, config layers or libraries "for later."
+2. **Stay on the task.** Edit only the files the user names. If another file needs a change, say so and wait.
+3. **No refactors, renames, restyling or unrequested "improvements."** If you spot something unrelated, mention it at the end; don't fix it.
+4. **No new dependencies** without explicit approval.
+5. **Reuse existing components, hooks and data** instead of duplicating logic.
+6. **Ask before major design or architecture decisions** that aren't written here.
+7. **Preview first:** for new visuals, build a standalone HTML preview and wait for approval before touching the React app.
+8. **If the user pastes finished files, apply them exactly.** Don't reinterpret or "fix" them.
+9. **Don't move on to the next task or phase on your own.** Finish, report using the checklist at the bottom, and wait.
 
 ## Design rules
 
-- Direction: cinematic editorial, minimal and clean. One focal point per section, generous empty space, open layouts with hairlines. Avoid card grids, heavy shadows and glassmorphism.
-- **No terminal or code-editor visuals anywhere:** no window-dot headers, `~/PATH` titles, `//` or `>` labels, shell prompts, blinking block cursors, or HUD text (BIO_SCAN, THERMAL, and similar). `TerminalHeader.jsx` is legacy and is being removed. Do not reuse it.
-- Fonts: **Changa One** for the wordmark and logo, **Inter** for all content, **JetBrains Mono** only for tiny metadata labels.
-- Colors are CSS custom properties in `src/index.css` (`--ink`, `--primary-text`, `--secondary-text`, `--muted-text`, `--primary-accent` cyan, `--secondary-accent` blue, `--hairline`). Use them; do not hard-code new colors. Cyan and blue are light sources (portrait glow, focus, hover), not large blocks.
-- Dark and light themes both must work. Do not invert the dark theme for light.
+- Direction: cinematic editorial, minimal and clean. One focal point per section, generous space, open layouts with hairlines. No card grids, heavy shadows or glassmorphism.
+- **No terminal or code-editor visuals:** no window-dot headers, `~/PATH` titles, `//` or `>` labels, shell prompts, block cursors, or HUD text. `TerminalHeader.jsx` is legacy; never reuse it.
+- Fonts: **Changa One** for the wordmark, **Inter** for content, **JetBrains Mono** only for tiny metadata labels.
+- Colors are CSS variables in `src/index.css` (`--ink`, `--primary-text`, `--secondary-text`, `--muted-text`, `--primary-accent` cyan, `--secondary-accent` blue, `--hairline`). Don't hard-code colors. Cyan and blue act as light sources, not large blocks.
+- Light and dark themes must both work. Don't just invert dark for light.
 
 ## Content rules
 
-- Do **not** invent biography, employers, metrics, dates, project URLs, or links.
-- Contact links (`hello@example.com` and `#`) are placeholders until the user supplies real ones. Never present them as final.
-- Timeline entries must be real. One entry exists today (Independent Developer, 2024 to present).
+- Never invent biography, employers, metrics, dates, project URLs or links.
+- Placeholder contact links (and the LinkedIn link and project URLs) stay placeholders until the user supplies real ones. Never present them as final.
+- Timeline entries must be real. DOCKET is the only real project for now.
+- Placeholder projects are allowed only when marked `placeholder: true`. They are dev-only samples with obviously fake content, carry no 3D object, and must never ship.
+- Pre-publish check: confirm no placeholder content appears in `npm run build` + `npm run preview`.
 
 ## Quality bar
 
 - Responsive from narrow phone to desktop. Semantic HTML, accessible names, keyboard access, visible focus, readable contrast.
-- Respect `prefers-reduced-motion`. Nothing important may depend on animation alone.
-- Never hide the pointer on touch devices. The custom cursor is desktop-only (`md:` and up).
-- Keep 3D efficient: pause when offscreen, cap pixel ratio, keep a fallback if the model or WebGL fails.
+- Respect `prefers-reduced-motion`; nothing important may depend on animation alone.
+- The custom cursor is desktop-only. Never hide the pointer on touch devices.
+- Keep 3D light: pause offscreen, cap pixel ratio, lazy-load, and keep a fallback if the model or WebGL fails. Small models, simpler or static on phones.
 
-## Current structure and decisions (do not undo)
+## Current structure (do not undo)
 
-Page order: `SiteNavigation` → `ExperienceJourney` (hero + scroll-driven experience timeline) → `PortfolioSections` (Projects, then Stack under it) → `SiteFooter` (Contact + footer together).
+Page order: `SiteNavigation` → `ExperienceJourney` (hero → About → experience timeline, scroll-driven) → Projects → Stack → `SiteFooter` (Contact + footer).
 
-- `src/App.jsx` composes the page and handles the theme toggle (circle-reveal view transition).
-- `src/components/Wordmark.jsx`: wordmark text is **`AG$TN` with no brackets**. Letters reveal one by one, replay once after 3 to 4.2 seconds (two reveals total), then stay visible. Static with reduced motion.
-- `src/components/CustomCursor.jsx`: thin 20px ring, moves with `transform` in one animation-frame loop (no React state per move), shrinks to a small filled dot over links and buttons. Do not reintroduce `left`/`top` transitions or per-move state.
-- `src/components/BiometricPortrait.jsx` + `PortraitModel.jsx`: loads `public/models/portrait_animation.glb`. The Blender blink clip plays on a loop; the head follows the cursor with eased motion **only while the pointer is over the hero section** and keeps its last direction when the pointer leaves. Reload returns it to facing forward.
-- `src/index.css`: journey, timeline, responsive and reduced-motion styles. The journey stage background is transparent on purpose.
-- Content data lives in `src/data/portfolioData.js` and `ExperienceTimeline.jsx`. Keep content editable there, not inside presentation components.
+- `App.jsx`: composes the page, theme toggle (circle-reveal view transition), lazy-loads the 3D background.
+- `Wordmark.jsx`: `AG$TN`, no brackets. Letters reveal one by one, replay once, then stay visible. Static with reduced motion.
+- `RoleSwap.jsx`: the "Developer + swapping word" line (GSAP).
+- `CustomCursor.jsx`: 20px ring moved with `transform` in one animation-frame loop; shrinks to a dot over links and buttons. No `left`/`top` transitions or per-move React state.
+- `BiometricPortrait.jsx` + `PortraitModel.jsx`: loads `public/models/portrait_animation.glb`; looping blink; eased head-follow only while the pointer is over the hero.
+- `DriftBackground.jsx` + `DocketObject.jsx`: ambient 3D shapes and the Docket object share one Canvas.
+- `useScrollReveals.js`: GSAP reveals driven by `data-*` attributes (`data-reveal`, `data-line`, `data-vl`, `data-mask`, `data-fade`). Use it for new reveals instead of writing new scroll code.
+- `ExperienceJourney.jsx`: the hero → About → timeline progress logic. Reuse it for anything scroll-linked.
+- Content lives in `src/data/portfolioData.js` and `ExperienceTimeline.jsx`, not inside presentation components.
 
-## Planned work (do NOT start unless the user asks for that phase)
+## Planned work (don't start unless the user asks for that item)
 
-1. Remove the terminal look from Projects and Stack, with a preview first.
-2. Add real contact links and any real timeline entries.
-3. GSAP + ScrollTrigger for the scroll journey (eased scrub, transform-only movement, staggered timeline reveals). Do not add GSAP before this phase is approved.
-4. Optimize the `.glb` with `gltf-transform` (offline tool, not shipped to visitors).
-5. Lighthouse, keyboard, reduced-motion and phone checks.
-6. Publish prep (title, description, favicon, share image, hosting).
+1. Portrait states: different pose, look and framing in the About vs Experience steps, procedural (no new GLB clips). - ` DONE `
+2. Real contact links and real timeline entries.
+3. Slim the portrait `.glb` (offline `gltf-transform`) and delete the unused GLBs.
+4. Lighthouse, keyboard, reduced-motion and phone checks.
+5. Publish prep (title, description, favicon, share image, hosting).
+
 
 ## Before you finish any task
 
-- List exactly which files you changed.
-- Confirm you did not touch any other file.
-- Confirm `npm run build` passes.
-- Stop and wait for the next instruction.
+1. List exactly which files you changed and confirm you touched no others.
+2. Run `npm run build` and report the real result. Don't claim it works if you didn't run it.
+3. Give a **summary**: what was added or changed, in plain language, 3 to 5 lines.
+4. Give **test instructions** so the user can check it themselves:
+   - Where to look (section or page) and what to do (scroll, hover, click, resize, toggle the theme).
+   - What they should see if it works.
+   - Anything to check specifically: reduced motion, phone width, light and dark themes.
+5. Give **feedback**: anything you're unsure about, tradeoffs you made, known limits, or unrelated issues you noticed but did not touch.
+6. Stop and wait for the next instruction.

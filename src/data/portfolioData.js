@@ -1,3 +1,23 @@
+// Dev-only sample rows so the Projects layout can be checked with a few entries.
+// `placeholder: true` marks content that must never ship; see AGENTS.MD. They carry
+// no `scene`, so no 3D object is drawn in their row.
+const placeholderProjects = [
+  {
+    id: "02",
+    name: "Coming soon...",
+    description: "",
+    stack: [""],
+    placeholder: true,
+  },
+  {
+    id: "03",
+    name: "Coming soon...",
+    description: "",
+    stack: [""],
+    placeholder: true,
+  },
+];
+
 export const projects = [
   {
     id: "01",
@@ -7,6 +27,8 @@ export const projects = [
     scene: "docket", // draws the 3D Docket object in this row (see DocketObject.jsx)
     // Add href: "https://..." to a project once it has a real URL; its row then becomes a link.
   },
+  // Placeholders are added only in development; a production build drops them entirely.
+  ...(import.meta.env.DEV ? placeholderProjects : []),
 ];
 
 export const stackGroups = [

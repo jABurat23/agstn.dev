@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Background Scroll Options — AGSTN Preview</title>
+<!--
+  Standalone preview only. It is NOT imported by the app or the build.
+  Serve it from the project root so the import map resolves:
+    npx vite
+  then open:
+    http://localhost:5173/preview-3d-background-scroll.html
+
+  Three ways the DriftBackground shapes can react to scroll. The camera never
+  moves (in the app this canvas is shared with the Docket object).
+-->
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
+
+  :root {
+    --ink: #070b12;
+    --primary-text: #ecf4fa;
+    --secondary-text: #a5b4c4;
+    --muted-text: #718398;
+    --primary-accent: #62e6f2;
+    --secondary-accent: #5b8cff;
+    --hairline: rgb(165 180 196 / 16%);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+  }
+  body {
+    color: var(--primary-text);
+    font-family: "Inter", sans-serif;
+  }
+
+  /* Soft accent glow; matches the app's background glow. */
+  #glow {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      60vmax 50vmax at var(--gx, 74%) var(--gy, 16%),
+      color-mix(in srgb, var(--gc, #62e6f2) 16%, transparent),
+      transparent 70%
+    );
+  }
+  #scene {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .ui {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  /* Reading placeholder, right-hand side (matches the app's About/timeline panel). */
+  .copy {
+    position: absolute;
+    top: 50%;
+    right: 5%;
+    width: min(42%, 540px);
+    transform: translateY(-50%);
+  }
+  .copy h1 {
+    margin: 0 0 22px;
+    font-size: clamp(1.9rem, 3.4vw, 3rem);
+    font-weight: 600;
+    letter-spacing: -0.05em;
+  }
+  .copy p {
+    max-width: 46ch;
+    margin: 0 0 14px;
+    color: var(--secondary-text);
+    font-size: clamp(0.95rem, 1.4vw, 1.1rem);
+    line-height: 1.7;
+  }
+
+  /* Left-side dummy portrait block, so shape overlap can be judged. */
+  .portrait-dummy {
+    position: absolute;
+    top: 50%;
+    left: 6%;
+    display: grid;
+    width: min(34%, 420px);
+    aspect-ratio: 4 / 4.4;
+    place-items: center;
+    border: 1px dashed var(--hairline);
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--primary-accent) 5%, transparent);
+    color: var(--muted-text);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transform: translateY(-50%);
+  }
+
+  .hud {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    max-width: 330px;
+    padding: 14px 16px;
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    background: rgb(7 11 18 / 82%);
+  }
+  .hud strong { display: block; font-size: 13px; letter-spacing: 0.02em; }
+  .hud p {
+    margin: 6px 0 10px;
+    color: var(--muted-text);
+    font-size: 12px;
+    line-height: 1.55;
+  }
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    color: var(--muted-text);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+  }
+  .stats b { color: var(--primary-accent); font-weight: 500; }
+
+  .controls {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    z-index: 20;
+    display: flex;
+    width: min(660px, 92vw);
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    background: rgb(7 11 18 / 90%);
+    transform: translateX(-50%);
+    pointer-events: auto;
+  }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .row .spacer { flex: 1 1 auto; }
+  .controls button {
+    padding: 8px 12px;
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--secondary-text);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 180ms ease, border-color 180ms ease, background-color 180ms ease;
+  }
+  .controls button:hover { color: var(--primary-text); border-color: var(--muted-text); }
+  .controls button.active {
+    border-color: var(--primary-accent);
+    background: color-mix(in srgb, var(--primary-accent) 15%, transparent);
+    color: var(--primary-accent);
+  }
+  .scrub { display: flex; flex-direction: column; gap: 4px; }
+  .scrub label {
+    color: var(--muted-text);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .scrub input { width: 100%; accent-color: var(--primary-accent); }
+
+  #fallback {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: #000;
+    color: var(--muted-text);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    text-align: center;
+  }
+  #fallback[hidden] { display: none; }
+  #fallback p { margin: 0 0 10px; max-width: 62ch; }
+  #fallback code { color: var(--primary-accent); }
+
+  @media (max-width: 760px) {
+    .portrait-dummy { display: none; }
+    .copy {
+      top: 30%;
+      right: 5%;
+      left: 5%;
+      width: auto;
+    }
+    .hud { max-width: 230px; }
+  }
+</style>
+</head>
+<body>
+  <div id="glow" aria-hidden="true"></div>
+  <canvas id="scene" aria-hidden="true"></canvas>
+
+  <main class="ui">
+    <div class="copy">
+      <h1>Heading placeholder</h1>
+      <p>Placeholder line one. This stands in for real page copy so you can judge whether the background shapes get in the way of reading.</p>
+      <p>Placeholder line two. Scroll progress moves the shape group while this text stays exactly where a reader would meet it.</p>
+      <p>Placeholder line three. Use the controls to compare options A, B and C, and to switch the desktop and phone shape counts.</p>
+    </div>
+
+    <div class="portrait-dummy" aria-hidden="true">dummy portrait</div>
+
+    <div class="hud">
+      <strong id="optName">A · Sideways drift</strong>
+      <p id="optDesc">The shape group slides horizontally with scroll. No depth change.</p>
+      <div class="stats">
+        <span>FPS <b id="fps">–</b></span>
+        <span>draws <b id="calls">–</b></span>
+        <span>tris <b id="tris">–</b></span>
+        <span>shapes <b id="shapes">–</b></span>
+      </div>
+    </div>
+  </main>
+
+  <div class="controls">
+    <div class="row">
+      <button data-opt="A" class="active">A · Sideways</button>
+      <button data-opt="B">B · Depth</button>
+      <button data-opt="C">C · Parallax</button>
+      <span class="spacer"></span>
+      <button data-count="42" class="active">Desktop</button>
+      <button data-count="22">Phone</button>
+    </div>
+    <div class="scrub">
+      <label for="progress">Scroll progress — drag, or scroll the mouse wheel &nbsp;|&nbsp; p = <span id="pVal">0.00</span></label>
+      <input id="progress" type="range" min="0" max="1" step="0.001" value="0" />
+    </div>
+  </div>
+
+  <div id="fallback" hidden>
+    <p id="fallbackReason"></p>
+    WebGL is unavailable, so the shapes cannot render. The glow and layout still show.<br />
+    Open this in a browser with WebGL: <code>npx vite</code> → <code>http://localhost:5173/preview-3d-background-scroll.html</code>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.186.1/build/three.module.js"
+    }
+  }
+  </script>
+  <script type="module">
+  import * as THREE from 'three';
+
+  // ---- constants (shape types, colors and materials copied from DriftBackground.jsx) ----
+  const FOG_COLOR = 0x070b12;
+  const SHAPE_COLORS = [0x16233a, 0x1c2d4a, 0x101a2c]; // dark-theme materials
+  const PALETTE = ['#62E6F2', '#5B8CFF', '#8FA6FF', '#62E6F2'].map((c) => new THREE.Color(c));
+  const DESKTOP_COUNT = 42;
+  const PHONE_COUNT = 22;
+  const MAX_DPR = 1.5;
+
+  // Depth-travel ranges. Far ends sit deep in fog; both ends fade so wraps never pop.
+  const B_RANGE = { from: -36, to: 9, speed: 1 };
+  const C_LAYERS = [
+    { from: -38, to: 4, speed: 0.65 }, // far
+    { from: -28, to: 8, speed: 1.0 }, // mid
+    { from: -16, to: 10, speed: 1.5 }, // near
+  ];
+  const EDGE_IN = 0.12; // fade in over the first 12% of travel
+  const EDGE_OUT = 0.4; // fade out over the last 40% (so near shapes never cover text)
+
+  const META = {
+    A: ['A · Sideways drift', 'The shape group slides horizontally with scroll. No depth change.'],
+    B: [
+      'B · Depth travel',
+      'Shapes travel toward the camera and wrap back into the fog at the far end. Far shapes dim; near shapes fade out before they can cover text.',
+    ],
+    C: [
+      'C · Parallax',
+      'Depth travel split into three layers at different speeds, plus a small sideways sway and a very small damped cursor parallax.',
+    ],
+  };
+
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clamp01 = (v) => Math.min(1, Math.max(0, v));
+  const frac = (v) => v - Math.floor(v);
+
+  function seeded(seed) {
+    return () => {
+      seed |= 0;
+      seed = (seed + 0x6d2b79f5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function hasWebGL() {
+    try {
+      const c = document.createElement('canvas');
+      return !!(c.getContext('webgl2') || c.getContext('webgl'));
+    } catch {
+      return false;
+    }
+  }
+
+  // Shown when WebGL is unavailable or the renderer cannot be created.
+  function showFallback(reason) {
+    const reasonEl = document.getElementById('fallbackReason');
+    if (reasonEl && reason) reasonEl.textContent = reason;
+    document.getElementById('fallback').hidden = false;
+  }
+
+  // Same per-item layout as DriftBackground.jsx, but recentred vertically so the
+  // fixed camera sees the composition (the app instead pans the camera down).
+  function makeItems(count) {
+    const r = seeded(7);
+    const r2 = seeded(31);
+    return Array.from({ length: count }, (_, i) => {
+      const y = (r() - 0.5) * 16;
+      const scale = 0.3 + r() * 0.8;
+      const baseX = (r() - 0.5) * 34;
+      const baseZ = (r() - 0.6) * 18;
+      const rotX = r() * 6;
+      const rotY = r() * 6;
+      const speed = 0.08 + r() * 0.22;
+      const phase = r() * 6;
+      const offset = r2();
+      const layer = Math.floor(r2() * 3);
+      return { i, scale, baseX, baseZ, baseY: y, rotX, rotY, speed, phase, offset, layer };
+    });
+  }
+
+  function main() {
+    const canvas = document.getElementById('scene');
+
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas,
+        antialias: true,
+        alpha: true,
+        powerPreference: 'low-power',
+      });
+    } catch (error) {
+      showFallback((error && error.message) || String(error));
+      return;
+    }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, MAX_DPR));
+    renderer.setClearColor(0x000000, 0);
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(FOG_COLOR, 20, 55);
+
+    // Fixed camera — never moved. Only the shape group reacts to scroll.
+    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
+    camera.position.set(0, 0, 14);
+    camera.lookAt(0, 0, 0);
+
+    const ambient = new THREE.AmbientLight(0x3a4a66, 2.8);
+    const key = new THREE.DirectionalLight(0xffffff, 3.9);
+    key.position.set(4, 6, 6);
+    const rim = new THREE.PointLight(0x5b8cff, 5, 60, 1);
+    rim.position.set(-8, 2, 6);
+    scene.add(ambient, key, rim);
+
+    const mood = new THREE.Color();
+    const glow = document.getElementById('glow');
+    let glowSig = '';
+
+    // ---- controls + readouts ----
+    const elFps = document.getElementById('fps');
+    const elCalls = document.getElementById('calls');
+    const elTris = document.getElementById('tris');
+    const elShapes = document.getElementById('shapes');
+    const elPv = document.getElementById('pVal');
+    const elOptName = document.getElementById('optName');
+    const elOptDesc = document.getElementById('optDesc');
+    const slider = document.getElementById('progress');
+
+    let option = 'A';
+    let count = DESKTOP_COUNT;
+    let phone = false;
+    let sp = 0;
+    let tp = 0;
+    let pmx = 0;
+    let pmy = 0;
+    let mx = 0;
+    let my = 0;
+
+    let current = null; // { group, geos, mats, items, meshes, option, count }
+
+    function disposeCurrent() {
+      if (!current) return;
+      scene.remove(current.group);
+      current.geos.forEach((g) => g.dispose());
+      current.mats.forEach((m) => m.dispose());
+      current = null;
+    }
+
+    function build() {
+      disposeCurrent();
+
+      const geos = [
+        new THREE.IcosahedronGeometry(1, 0),
+        new THREE.TetrahedronGeometry(1.15, 0),
+        new THREE.OctahedronGeometry(1, 0),
+      ];
+      const items = makeItems(count);
+      const group = new THREE.Group();
+      const mats = [];
+      const meshes = [];
+      const transparent = option !== 'A';
+
+      items.forEach((o, i) => {
+        const mat = new THREE.MeshStandardMaterial({
+          color: SHAPE_COLORS[i % 3],
+          flatShading: true,
+          roughness: 0.55,
+          metalness: 0.1,
+          transparent,
+          opacity: 1,
+        });
+        mats.push(mat);
+
+        const mesh = new THREE.Mesh(geos[i % 3], mat);
+        mesh.position.set(o.baseX, o.baseY, o.baseZ);
+        mesh.rotation.set(o.rotX, o.rotY, 0);
+        mesh.scale.setScalar(o.scale);
+        group.add(mesh);
+        meshes.push(mesh);
+      });
+
+      scene.add(group);
+      current = { group, geos, mats, items, meshes, option, count };
+
+      // Place the composition immediately so the first frame is never wrong.
+      applyFrame(0, sp, mx, my, performance.now() / 1000);
+    }
+
+    function applyFrame(dt, p, cx, cy, elapsed) {
+      if (!current) return;
+      const { option: opt, items, meshes, group } = current;
+
+      // Key light + CSS glow follow the scroll, exactly like the app.
+      const f = p * (PALETTE.length - 1);
+      const pi = Math.min(PALETTE.length - 2, Math.floor(f));
+      mood.copy(PALETTE[pi]).lerp(PALETTE[pi + 1], f - pi);
+      key.color.copy(mood);
+      const hex = mood.getHexString();
+      const gx = (74 - p * 44).toFixed(1);
+      const gy = (16 + p * 64).toFixed(1);
+      const sig = hex + gx + gy;
+      if (sig !== glowSig) {
+        glowSig = sig;
+        glow.style.setProperty('--gc', '#' + hex);
+        glow.style.setProperty('--gx', gx + '%');
+        glow.style.setProperty('--gy', gy + '%');
+      }
+
+      const idle = reduce ? 0 : dt;
+
+      for (let i = 0; i < items.length; i++) {
+        const o = items[i];
+        const m = meshes[i];
+
+        // Existing idle drift underneath every option.
+        m.rotation.x += o.speed * idle;
+        m.rotation.y += o.speed * 0.7 * idle;
+
+        let z = o.baseZ;
+        let opacity = 1;
+        if (opt !== 'A') {
+          const layer = opt === 'B' ? B_RANGE : C_LAYERS[o.layer];
+          const prog = frac(p * layer.speed + o.offset);
+          z = layer.from + prog * (layer.to - layer.from);
+          opacity = Math.min(clamp01(prog / EDGE_IN), clamp01((1 - prog) / EDGE_OUT));
+        }
+
+        m.position.set(
+          o.baseX,
+          o.baseY + (reduce ? 0 : Math.sin(elapsed * 0.4 + o.phase) * 0.35),
+          z,
+        );
+
+        if (opt !== 'A') {
+          m.material.opacity = opacity;
+          m.visible = opacity > 0.002; // skip fully faded shapes → fewer draw calls
+        }
+      }
+
+      if (opt === 'A') {
+        group.position.set((0.5 - p) * 28, 0, 0);
+        group.rotation.set(0, 0, 0);
+      } else if (opt === 'B') {
+        group.position.set(0, 0, 0);
+        group.rotation.set(0, 0, 0);
+      } else {
+        group.position.set(Math.sin(p * Math.PI * 2) * 2.5, 0, 0);
+        group.rotation.set(cy * 0.03, cx * 0.05, 0); // very small damped cursor parallax
+      }
+    }
+
+    function updateStats() {
+      const info = renderer.info.render;
+      elFps.textContent = reduce ? 'static' : String(Math.round(fps));
+      elCalls.textContent = String(info.calls);
+      elTris.textContent = info.triangles.toLocaleString();
+      elShapes.textContent = current ? String(current.count) : '0';
+      elPv.textContent = sp.toFixed(2);
+    }
+
+    function updateMeta() {
+      const [name, desc] = META[option];
+      elOptName.textContent = name;
+      elOptDesc.textContent = desc;
+    }
+
+    // ---- loop ----
+    let raf = 0;
+    let last = performance.now();
+    let frames = 0;
+    let statAcc = 0;
+    let fps = 0;
+
+    function frame(now) {
+      raf = requestAnimationFrame(frame);
+      let dt = (now - last) / 1000;
+      last = now;
+      if (!(dt > 0)) dt = 0.016;
+      dt = Math.min(dt, 0.05);
+
+      sp += (tp - sp) * Math.min(1, dt * 4);
+      const ax = phone ? 0 : pmx;
+      const ay = phone ? 0 : pmy;
+      mx += (ax - mx) * Math.min(1, dt * 3);
+      my += (ay - my) * Math.min(1, dt * 3);
+
+      applyFrame(dt, sp, mx, my, now / 1000);
+      renderer.render(scene, camera);
+
+      frames++;
+      statAcc += dt;
+      if (statAcc >= 0.25) {
+        fps = frames / statAcc;
+        frames = 0;
+        statAcc = 0;
+        updateStats();
+      }
+    }
+
+    function renderOnce() {
+      applyFrame(0, sp, 0, 0, 0);
+      renderer.render(scene, camera);
+      updateStats();
+    }
+
+    function start() {
+      if (reduce || raf) return;
+      last = performance.now();
+      raf = requestAnimationFrame(frame);
+    }
+
+    function stop() {
+      if (raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      }
+    }
+
+    function resize() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, MAX_DPR));
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+
+    // ---- events ----
+    document.querySelectorAll('[data-opt]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        option = btn.dataset.opt;
+        document.querySelectorAll('[data-opt]').forEach((b) => b.classList.toggle('active', b === btn));
+        build();
+        updateMeta();
+        if (reduce) renderOnce();
+      });
+    });
+
+    document.querySelectorAll('[data-count]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        count = Number.parseInt(btn.dataset.count, 10);
+        phone = count === PHONE_COUNT;
+        document.querySelectorAll('[data-count]').forEach((b) => b.classList.toggle('active', b === btn));
+        build();
+        if (reduce) renderOnce();
+      });
+    });
+
+    slider.addEventListener('input', () => {
+      tp = clamp01(Number.parseFloat(slider.value));
+    });
+
+    window.addEventListener(
+      'wheel',
+      (e) => {
+        if (reduce) return;
+        e.preventDefault();
+        tp = clamp01(tp - e.deltaY * 0.0006);
+        slider.value = String(tp);
+      },
+      { passive: false },
+    );
+
+    window.addEventListener('pointermove', (e) => {
+      pmx = (e.clientX / window.innerWidth) * 2 - 1;
+      pmy = -((e.clientY / window.innerHeight) * 2 - 1);
+    }, { passive: true });
+
+    window.addEventListener('resize', resize);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stop();
+      else start();
+    });
+
+    // ---- init ----
+    if (reduce) {
+      sp = 0.5;
+      tp = 0.5;
+      slider.value = '0.5';
+      slider.disabled = true;
+    }
+    resize();
+    build();
+    updateMeta();
+    if (reduce) renderOnce();
+    else start();
+  }
+
+  if (hasWebGL()) {
+    main();
+  } else {
+    showFallback('WebGL is not available in this browser.');
+  }
+  </script>
+</body>
+</html>

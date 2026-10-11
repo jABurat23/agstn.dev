@@ -134,9 +134,10 @@ body:has(.dark) {
   position: absolute;
   z-index: 1;
   top: 50%;
-  left: var(--portrait-left, 55%);
+  left: 50%;
   width: min(39%, 500px);
-  transform: translateY(-50%);
+  /* --portrait-left is a left-edge percentage (55 -> 9 -> 6); move with a transform. */
+  transform: translate(calc((var(--portrait-left, 55) - 50) * 1vw), -50%);
 }
 
 /* The About step sits in the same right-hand panel as the timeline; they hand over in turn. */

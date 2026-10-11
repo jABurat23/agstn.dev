@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Portrait States Preview — AGSTN</title>
+<!--
+  Standalone preview only. It is NOT imported by the app or the build.
+  Serve it from the project root so the GLB resolves:  npx vite
+  then open  http://localhost:5173/preview-portrait-states.html
+  Opening this file directly (file://) will not find public/models/portrait_animation.glb.
+-->
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
+
+  :root {
+    --ink: #070b12;
+    --primary-text: #ecf4fa;
+    --secondary-text: #a5b4c4;
+    --muted-text: #718398;
+    --primary-accent: #62e6f2;
+    --secondary-accent: #5b8cff;
+    --hairline: rgb(165 180 196 / 16%);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #000;
+    color: var(--primary-text);
+    font-family: "Inter", sans-serif;
+    min-height: 100svh;
+    overflow: hidden;
+  }
+  .stage {
+    position: relative;
+    width: 100vw;
+    height: 100svh;
+    overflow: hidden;
+  }
+
+  /* Positioned by centre, never by the left edge, so nothing can overflow. */
+  .portrait-wrap {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(39%, 500px);
+    transform: translate(-50%, -50%) translateX(calc((var(--pc, 72) - 50) * 1vw));
+    will-change: transform;
+  }
+  .portrait-stage {
+    position: relative;
+    aspect-ratio: 4 / 4.4;
+    width: 100%;
+  }
+  .portrait-stage::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 10% 1% 6%;
+    border-radius: 50%;
+    background: radial-gradient(
+      ellipse at 50% 44%,
+      color-mix(in srgb, var(--primary-accent) 21%, transparent),
+      transparent 70%
+    );
+    filter: blur(20px);
+    pointer-events: none;
+  }
+  .portrait-canvas canvas {
+    -webkit-mask-image: radial-gradient(ellipse at 50% 48%, #000 48%, transparent 82%);
+    mask-image: radial-gradient(ellipse at 50% 48%, #000 48%, transparent 82%);
+  }
+
+  .portrait-fallback {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    color: var(--muted-text);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    text-align: center;
+    pointer-events: none;
+  }
+  .portrait-fallback code { color: var(--primary-accent); }
+
+  /* Placeholder panels: About copy and timeline both sit on the right,
+     handing over in turn, exactly like the app. */
+  .panel {
+    position: absolute;
+    top: 50%;
+    z-index: 3;
+    transform: translateY(-50%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 280ms ease;
+  }
+  .about-panel { right: 5%; width: min(40%, 520px); }
+  .timeline-panel { right: 5%; width: min(38%, 500px); }
+
+  .panel h2 {
+    margin: 0 0 26px;
+    font-size: clamp(1.75rem, 3vw, 2.6rem);
+    font-weight: 500;
+    letter-spacing: -0.055em;
+  }
+  .panel > p {
+    max-width: 46ch;
+    margin: 0;
+    color: var(--secondary-text);
+    font-size: clamp(1rem, 1.5vw, 1.15rem);
+    line-height: 1.65;
+  }
+
+  .timeline-list {
+    position: relative;
+    display: grid;
+    gap: 30px;
+    margin: 0;
+    padding: 0 0 0 25px;
+    list-style: none;
+  }
+  .timeline-list::before {
+    content: "";
+    position: absolute;
+    top: 7px;
+    bottom: 9px;
+    left: 3px;
+    width: 1px;
+    background: var(--hairline);
+  }
+  .timeline-list li { position: relative; }
+  .timeline-list li::before {
+    content: "";
+    position: absolute;
+    top: 5px;
+    left: -26px;
+    width: 7px;
+    height: 7px;
+    border: 1px solid var(--muted-text);
+    border-radius: 50%;
+    background: var(--ink);
+  }
+  .timeline-date {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--muted-text);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .timeline-list h3 {
+    margin: 0;
+    font-size: clamp(1.05rem, 1.6vw, 1.3rem);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+  }
+  .timeline-list p {
+    max-width: 390px;
+    margin: 8px 0 0;
+    color: var(--secondary-text);
+    font-size: 13px;
+    line-height: 1.65;
+  }
+
+  .label {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 10;
+    padding: 6px 12px;
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    background: rgb(0 0 0 / 60%);
+    color: var(--muted-text);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    pointer-events: none;
+  }
+  .controls {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    z-index: 20;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 8px;
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    background: rgb(7 11 18 / 85%);
+    transform: translateX(-50%);
+  }
+  .controls button {
+    padding: 8px 14px;
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--secondary-text);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 180ms ease, border-color 180ms ease, background-color 180ms ease;
+  }
+  .controls button:hover { color: var(--primary-text); border-color: var(--muted-text); }
+  .controls button.active {
+    border-color: var(--primary-accent);
+    background: color-mix(in srgb, var(--primary-accent) 15%, transparent);
+    color: var(--primary-accent);
+  }
+  .scrub {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    z-index: 20;
+    display: flex;
+    width: min(500px, 80vw);
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 16px;
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    background: rgb(7 11 18 / 85%);
+    transform: translateX(-50%);
+  }
+  .scrub label {
+    color: var(--muted-text);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .scrub input[type="range"] { width: 100%; accent-color: var(--primary-accent); }
+  .t {
+    color: var(--secondary-text);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+  }
+
+  @media (max-width: 760px) {
+    /* Phones: no lateral shift, panels hidden — mobile layout is handled in the app. */
+    .portrait-wrap { transform: translate(-50%, -50%); }
+    .panel { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .panel { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="portrait-wrap" id="portraitWrap">
+    <div class="portrait-stage" id="portraitStage">
+      <div class="portrait-canvas" id="canvasHolder"></div>
+    </div>
+  </div>
+
+  <section class="panel about-panel" id="aboutPanel" aria-hidden="true">
+    <h2>About</h2>
+    <p>Placeholder copy. This paragraph stands in for the real About text so the portrait's placement and turn can be judged against it. Swap in the real copy later.</p>
+  </section>
+
+  <section class="panel timeline-panel" id="timelinePanel" aria-hidden="true">
+    <h2>Experience</h2>
+    <ol class="timeline-list">
+      <li>
+        <span class="timeline-date">Placeholder</span>
+        <h3>Timeline entry one</h3>
+        <p>Stand-in line for spacing and hand-off checks.</p>
+      </li>
+      <li>
+        <span class="timeline-date">Placeholder</span>
+        <h3>Timeline entry two</h3>
+        <p>Stand-in line for spacing and hand-off checks.</p>
+      </li>
+      <li>
+        <span class="timeline-date">Placeholder</span>
+        <h3>Timeline entry three</h3>
+        <p>Stand-in line for spacing and hand-off checks.</p>
+      </li>
+    </ol>
+  </section>
+
+  <div class="label" id="stateLabel">HERO</div>
+
+  <div class="scrub">
+    <label>Scroll progress (drag to scrub the journey)</label>
+    <input type="range" id="progress" min="0" max="1" step="0.001" value="0" />
+    <div class="t">progress = <span id="progressVal">0.000</span> &nbsp;|&nbsp; t = <span id="aboutVal">0.000</span> &nbsp;|&nbsp; e = <span id="expVal">0.000</span></div>
+  </div>
+
+  <div class="controls">
+    <button data-state="hero" class="active">Hero</button>
+    <button data-state="about">About</button>
+    <button data-state="experience">Experience</button>
+    <button data-state="scrub">Scrub Mode</button>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.186.1/build/three.module.js",
+    "three/examples/jsm/loaders/GLTFLoader.js": "https://unpkg.com/three@0.186.1/examples/jsm/loaders/GLTFLoader.js",
+    "three/addons/": "https://unpkg.com/three@0.186.1/examples/jsm/"
+  }
+}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+
+// ── State config: every value the three states use lives here ─────────
+// Facing check (from portrait_animation.glb): the nose sits at +Z and the
+// camera is at +Z, so the model faces the viewer. A positive Y rotation turns
+// the head to the viewer's right; a negative one turns it to the left.
+const STATES = {
+  hero: {
+    label: 'HERO',
+    // Matches the app's POINTER_GAZE_WEIGHT (0.25).
+    pose: { yaw: 0, gazeWeight: 0.25 },
+    light: { key: 2.2, rimCyan: 3.0, rimBlue: 1.8, hemi: 1.2 },
+    framing: { center: 72, scale: 1.0 },
+  },
+  about: {
+    label: 'ABOUT',
+    // Portrait sits left, copy sits right → turn right toward the copy.
+    pose: { yaw: THREE.MathUtils.degToRad(12), gazeWeight: 0.1 },
+    light: { key: 3.0, rimCyan: 1.8, rimBlue: 2.2, hemi: 1.6 },
+    framing: { center: 28, scale: 1.05 },
+  },
+  experience: {
+    label: 'EXPERIENCE',
+    // Portrait sits left, timeline sits right → turn right toward the timeline.
+    // Slightly smaller and further left than About.
+    pose: { yaw: THREE.MathUtils.degToRad(20), gazeWeight: 0 },
+    light: { key: 1.4, rimCyan: 2.0, rimBlue: 3.2, hemi: 0.9 },
+    framing: { center: 23, scale: 0.82 },
+  },
+};
+
+// ── Blend helpers ─────────────────────────────────────────────────────
+const clamp01 = (v) => Math.min(Math.max(v, 0), 1);
+const lerp = (a, b, t) => a + (b - a) * t;
+const smoothstep = (x) => { const t = clamp01(x); return t * t * (3 - 2 * t); };
+
+// One generic lerp that walks any nested object of numbers.
+function lerpDeep(a, b, t) {
+  if (typeof a === 'number') return lerp(a, b, t);
+  const out = {};
+  for (const key of Object.keys(a)) out[key] = lerpDeep(a[key], b[key], t);
+  return out;
+}
+
+// ── Preview phase mapping. t and e come from the slider only. ─────────
+const HERO_END = 0.55;   // slider fraction where hero → about finishes
+const ABOUT_END = 0.80;  // slider fraction where about → experience finishes
+function phasesFromProgress(progress) {
+  return {
+    t: clamp01(progress / HERO_END),
+    e: clamp01((progress - HERO_END) / (ABOUT_END - HERO_END)),
+  };
+}
+
+// One piecewise blend: hero → about while e is 0, then about → experience.
+function portraitFor(t, e) {
+  const inExperience = e > 0;
+  const from = inExperience ? STATES.about : STATES.hero;
+  const to = inExperience ? STATES.experience : STATES.about;
+  const mix = smoothstep(inExperience ? e : t);
+  return {
+    pose: lerpDeep(from.pose, to.pose, mix),
+    light: lerpDeep(from.light, to.light, mix),
+    framing: lerpDeep(from.framing, to.framing, mix),
+  };
+}
+
+// ── DOM refs ──────────────────────────────────────────────────────────
+const stage = document.getElementById('stage');
+const portraitStage = document.getElementById('portraitStage');
+const wrap = document.getElementById('portraitWrap');
+const canvasHolder = document.getElementById('canvasHolder');
+const label = document.getElementById('stateLabel');
+const aboutPanel = document.getElementById('aboutPanel');
+const timelinePanel = document.getElementById('timelinePanel');
+const progressInput = document.getElementById('progress');
+const progressVal = document.getElementById('progressVal');
+const aboutVal = document.getElementById('aboutVal');
+const expVal = document.getElementById('expVal');
+
+const isMobile = () => window.matchMedia('(max-width: 760px)').matches;
+const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+let reduced = motionQuery.matches;
+motionQuery.addEventListener('change', () => { reduced = motionQuery.matches; });
+
+// ── Three.js setup ────────────────────────────────────────────────────
+const MODEL_URL = new URL('models/portrait_animation.glb', location.href).href;
+const NECK_PIVOT_Y = -1.3;
+const MAX_YAW = THREE.MathUtils.degToRad(15);
+const MAX_PITCH = THREE.MathUtils.degToRad(8);
+const BLINK_SPEED = 0.5;
+const TILT_DURATION = 0.7;                          // seconds
+const TILT_AMOUNT = THREE.MathUtils.degToRad(5);    // one-time nudge
+
+const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+renderer.setSize(portraitStage.clientWidth, portraitStage.clientHeight);
+canvasHolder.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(36, portraitStage.clientWidth / portraitStage.clientHeight, 0.1, 100);
+camera.position.set(0, 0, 8);
+camera.lookAt(0, 0.4, 0);
+
+const hemiLight = new THREE.HemisphereLight(0xcfe6ff, 0x0d1420, STATES.hero.light.hemi);
+scene.add(hemiLight);
+
+const keyLight = new THREE.DirectionalLight(0xffffff, STATES.hero.light.key);
+keyLight.position.set(2, 3, 5);
+scene.add(keyLight);
+
+const rimCyan = new THREE.DirectionalLight(0x62e6f2, STATES.hero.light.rimCyan);
+rimCyan.position.set(-4, 1, -3);
+scene.add(rimCyan);
+
+const rimBlue = new THREE.DirectionalLight(0x5b8cff, STATES.hero.light.rimBlue);
+rimBlue.position.set(4, -1, -2);
+scene.add(rimBlue);
+
+// Preserve the GLB hierarchy so the blink tracks keep their local transforms.
+function buildPortrait(sourceScene) {
+  const cloned = sourceScene.clone(true);
+  const root = new THREE.Group();
+  const shoulder = cloned.getObjectByName('shoulder');
+  if (shoulder) root.attach(shoulder);
+
+  const piv = new THREE.Group();
+  piv.position.set(0, NECK_PIVOT_Y, 0);
+  const modelOffset = new THREE.Group();
+  modelOffset.position.set(0, -NECK_PIVOT_Y, 0);
+  piv.add(modelOffset);
+  root.add(piv);
+  modelOffset.attach(cloned);
+
+  return { root, pivot: piv };
+}
+
+let pivot = null;
+let modelGroup = null;
+let mixer = null;
+
+const loader = new GLTFLoader();
+loader.load(MODEL_URL, (gltf) => {
+  const { root, pivot: piv } = buildPortrait(gltf.scene);
+  pivot = piv;
+
+  modelGroup = new THREE.Group();
+  modelGroup.position.set(0, 0.8, 0);
+  modelGroup.add(root);
+  scene.add(modelGroup);
+
+  mixer = new THREE.AnimationMixer(root);
+  for (const clip of gltf.animations) {
+    mixer.clipAction(clip).setLoop(THREE.LoopRepeat, Infinity).setEffectiveTimeScale(BLINK_SPEED).play();
+  }
+}, undefined, () => {
+  console.warn(`[preview] Could not load ${MODEL_URL}. Serve this folder with "npx vite" and open /preview-portrait-states.html.`);
+  const note = document.createElement('div');
+  note.className = 'portrait-fallback';
+  note.innerHTML = 'Portrait GLB not found.<br />Serve this folder with <code>npx vite</code> (not file://).';
+  stage.appendChild(note);
+  label.textContent = 'MODEL MISSING';
+});
+
+// ── Pointer input ─────────────────────────────────────────────────────
+const pointer = { x: 0, y: 0 };
+const motion = { yaw: 0, pitch: 0, roll: 0 };
+
+stage.addEventListener('pointermove', (event) => {
+  pointer.x = THREE.MathUtils.clamp((event.clientX / window.innerWidth) * 2 - 1, -1, 1);
+  pointer.y = THREE.MathUtils.clamp((event.clientY / window.innerHeight) * 2 - 1, -1, 1);
+}, { passive: true });
+
+// ── State application ─────────────────────────────────────────────────
+function applyState(view, dt, immediate, tiltRoll) {
+  if (!pivot || !modelGroup) return;
+
+  const snap = reduced || immediate;
+  const ease = (current, target, lambda) =>
+    snap ? target : THREE.MathUtils.damp(current, target, lambda, dt);
+
+  const gaze = reduced ? 0 : view.pose.gazeWeight;
+  const baseYaw = view.pose.yaw + pointer.x * MAX_YAW * gaze;
+  const basePitch = pointer.y * MAX_PITCH * gaze;
+
+  motion.yaw = ease(motion.yaw, baseYaw, 4.5);
+  motion.pitch = ease(motion.pitch, basePitch, 4.5);
+  motion.roll = ease(motion.roll, tiltRoll, 5.5);
+  pivot.rotation.set(motion.pitch, motion.yaw, motion.roll);
+
+  keyLight.intensity = view.light.key;
+  rimCyan.intensity = view.light.rimCyan;
+  rimBlue.intensity = view.light.rimBlue;
+  hemiLight.intensity = view.light.hemi;
+
+  if (isMobile()) {
+    // Phones: no lateral shift, just a mild zoom.
+    wrap.style.setProperty('--pc', '50');
+    modelGroup.scale.setScalar(lerp(1, view.framing.scale, 0.3));
+  } else {
+    wrap.style.setProperty('--pc', String(view.framing.center));
+    modelGroup.scale.setScalar(view.framing.scale);
+  }
+}
+
+// ── Frame loop ────────────────────────────────────────────────────────
+let mode = 'hero';       // hero | about | experience | scrub
+let snapNext = true;
+let aboutWasIn = false;
+let tiltStart = -1;
+let last = performance.now();
+
+function frame(now) {
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+
+  if (mixer) mixer.update(dt);
+
+  let t;
+  let e;
+  let progressReadout;
+  if (mode === 'scrub') {
+    progressReadout = Number.parseFloat(progressInput.value);
+    ({ t, e } = phasesFromProgress(progressReadout));
+  } else if (mode === 'about') {
+    t = 1; e = 0; progressReadout = HERO_END;
+  } else if (mode === 'experience') {
+    t = 1; e = 1; progressReadout = 1;
+  } else {
+    t = 0; e = 0; progressReadout = 0;
+  }
+
+  const view = portraitFor(t, e);
+
+  // Placeholder panels fade like the app so placement can be judged.
+  const aboutOpacity = Math.min(clamp01((t - 0.18) * 4), clamp01(1 - e * 4));
+  const timelineOpacity = clamp01((e - 0.3) * 4);
+  aboutPanel.style.opacity = aboutOpacity.toFixed(3);
+  aboutPanel.setAttribute('aria-hidden', String(aboutOpacity < 0.05));
+  timelinePanel.style.opacity = timelineOpacity.toFixed(3);
+  timelinePanel.setAttribute('aria-hidden', String(timelineOpacity < 0.05));
+
+  // One-time small head tilt when About is entered.
+  const inAbout = e === 0 && t > 0.5;
+  if (!reduced) {
+    if (inAbout && !aboutWasIn) tiltStart = now;
+    aboutWasIn = inAbout;
+  }
+  let tiltRoll = 0;
+  if (!reduced && tiltStart >= 0) {
+    const elapsed = (now - tiltStart) / 1000;
+    if (elapsed < TILT_DURATION) {
+      tiltRoll = -Math.sin(Math.PI * (elapsed / TILT_DURATION)) * TILT_AMOUNT;
+    }
+  }
+
+  applyState(view, dt, snapNext, tiltRoll);
+  snapNext = false;
+
+  label.textContent = mode === 'scrub'
+    ? (t < 0.5 ? 'HERO → ABOUT' : e < 0.5 ? 'ABOUT' : 'ABOUT → EXPERIENCE')
+    : mode.toUpperCase();
+  progressVal.textContent = progressReadout.toFixed(3);
+  aboutVal.textContent = t.toFixed(3);
+  expVal.textContent = e.toFixed(3);
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+
+// ── Controls ──────────────────────────────────────────────────────────
+document.querySelectorAll('.controls button').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.controls button').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+    mode = btn.dataset.state;
+    pointer.x = 0;
+    pointer.y = 0;
+    aboutWasIn = false;
+    tiltStart = -1;
+    snapNext = true;
+  });
+});
+
+// ── Resize ────────────────────────────────────────────────────────────
+window.addEventListener('resize', () => {
+  const w = portraitStage.clientWidth;
+  const h = portraitStage.clientHeight;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+});
+
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

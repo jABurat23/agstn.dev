@@ -64,10 +64,6 @@ export default function BiometricPortrait({ progressSourceRef }) {
           fallback={fallback}
           gl={{ alpha: true, antialias: true, powerPreference: "low-power" }}
         >
-          <hemisphereLight args={["#cfe6ff", "#0d1420", 1.2]} />
-          <directionalLight color="#ffffff" intensity={2.2} position={[2, 3, 5]} />
-          <directionalLight color="#62e6f2" intensity={3} position={[-4, 1, -3]} />
-          <directionalLight color="#5b8cff" intensity={1.8} position={[4, -1, -2]} />
           <Suspense fallback={null}>
             <PortraitModel
               reducedMotion={reducedMotion}

@@ -6,6 +6,21 @@ import DocketObject from './DocketObject'
 // Accent colour per section as the page scrolls: cyan -> blue -> light blue -> cyan
 const PALETTE = ['#62E6F2', '#5B8CFF', '#8FA6FF', '#62E6F2'].map((c) => new THREE.Color(c))
 
+// ---- scroll response tunables (option C: depth travel + parallax) ----
+// Shapes travel along z and are recycled in the same fixed set. Every shape is
+// assigned one layer below, so deeper layers move slower than the near ones.
+// Set SWAY and CURSOR_PARALLAX to 0 for the plain depth-travel look (option B).
+const DEPTH_LAYERS = [
+  { from: -38, to: 4, speed: 0.65 }, // far
+  { from: -28, to: 8, speed: 1 }, // mid
+  { from: -16, to: 10, speed: 1.5 }, // near
+]
+const SWAY = 2.5 // world units the whole group sways sideways across the scroll
+const CURSOR_PARALLAX = 0.05 // radians of group tilt from the damped cursor (desktop only)
+const EDGE_IN = 0.12 // fade in over the first 12% of the travel
+const EDGE_OUT = 0.4 // fade out over the last 40%: near shapes never reach the text
+const COUNTS = { desktop: 42, phone: 22 }
+
 const isMobile = () => window.matchMedia('(max-width: 720px)').matches
 const prefersReduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -28,7 +43,10 @@ function seeded(seed) {
   }
 }
 
-function Shapes({ count, reduce, dark, glowRef }) {
+const clamp01 = (v) => Math.min(1, Math.max(0, v))
+const frac = (v) => v - Math.floor(v)
+
+function Shapes({ count, reduce, dark, mobile, glowRef }) {
   const { camera, size, invalidate } = useThree()
   const keyLight = useRef()
   const group = useRef()
@@ -45,36 +63,51 @@ function Shapes({ count, reduce, dark, glowRef }) {
     ],
     [],
   )
-  const mats = useMemo(
-    () =>
-      (dark ? [0x16233a, 0x1c2d4a, 0x101a2c] : [0xc4d4ee, 0xd3dff2, 0xb3c7e8]).map(
-        (color) => new THREE.MeshStandardMaterial({ color, flatShading: true, roughness: 0.55, metalness: 0.1 }),
-      ),
-    [dark],
-  )
-  useEffect(() => () => mats.forEach((m) => m.dispose()), [mats])
-  useEffect(() => () => geos.forEach((g) => g.dispose()), [geos])
+  // Same per-item layout as the approved preview. Y is recentred because the
+  // camera is fixed now (the old code panned the camera down a y = 6 - r()*26 field).
   const items = useMemo(() => {
     const r = seeded(7)
+    const r2 = seeded(31)
     return Array.from({ length: count }, (_, i) => {
-      const y = 6 - r() * 26
+      const y = (r() - 0.5) * 16
       return {
         i,
         scale: 0.3 + r() * 0.8,
-        pos: [(r() - 0.5) * 34, y, (r() - 0.6) * 18],
-        rot: [r() * 6, r() * 6, 0],
+        baseX: (r() - 0.5) * 34,
+        baseY: y,
+        baseZ: (r() - 0.6) * 18,
+        rotX: r() * 6,
+        rotY: r() * 6,
         speed: 0.08 + r() * 0.22,
         phase: r() * 6,
-        baseY: y,
+        offset: r2(),
+        layer: Math.floor(r2() * DEPTH_LAYERS.length),
       }
     })
   }, [count])
+  // One material per shape so each can fade on its own near the camera.
+  const mats = useMemo(() => {
+    const colors = dark ? [0x16233a, 0x1c2d4a, 0x101a2c] : [0xc4d4ee, 0xd3dff2, 0xb3c7e8]
+    return items.map(
+      (o) =>
+        new THREE.MeshStandardMaterial({
+          color: colors[o.i % 3],
+          flatShading: true,
+          roughness: 0.55,
+          metalness: 0.1,
+          transparent: true,
+          opacity: 1,
+        }),
+    )
+  }, [items, dark])
+  useEffect(() => () => mats.forEach((m) => m.dispose()), [mats])
+  useEffect(() => () => geos.forEach((g) => g.dispose()), [geos])
 
   useEffect(() => {
     const readScroll = () => {
       const max = document.documentElement.scrollHeight - window.innerHeight
       st.current.tp = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0
-      if (reduce) invalidate()
+      invalidate()
     }
     const onMove = (e) => {
       if (reduce) return
@@ -97,9 +130,10 @@ function Shapes({ count, reduce, dark, glowRef }) {
     const dt = reduce ? 0 : Math.min(delta, 0.05)
     const t = performance.now() / 1000
 
+    // Damped cursor (desktop only: forced to 0 on phones, so no parallax there).
     const k = Math.min(1, dt * 3)
-    s.mx += (pointer.current.x - s.mx) * k
-    s.my += (pointer.current.y - s.my) * k
+    s.mx += ((mobile ? 0 : pointer.current.x) - s.mx) * k
+    s.my += ((mobile ? 0 : pointer.current.y) - s.my) * k
     s.sp += (s.tp - s.sp) * (reduce ? 1 : Math.min(1, dt * 4))
     const p = s.sp
 
@@ -124,19 +158,38 @@ function Shapes({ count, reduce, dark, glowRef }) {
     items.forEach((o) => {
       const m = meshes.current[o.i]
       if (!m) return
+      // idle drift stays underneath the scroll response
       m.rotation.x += o.speed * dt
       m.rotation.y += o.speed * 0.7 * dt
-      m.position.y = o.baseY + Math.sin(t * 0.4 + o.phase) * 0.35
+      // depth travel: recycle within the layer's fixed range
+      const layer = DEPTH_LAYERS[o.layer]
+      const prog = frac(p * layer.speed + o.offset)
+      m.position.set(
+        o.baseX,
+        o.baseY + (reduce ? 0 : Math.sin(t * 0.4 + o.phase) * 0.35),
+        layer.from + prog * (layer.to - layer.from),
+      )
+      // fade both ends so wraps never pop and near shapes never reach the text
+      const opacity = Math.min(clamp01(prog / EDGE_IN), clamp01((1 - prog) / EDGE_OUT))
+      m.material.opacity = opacity
+      m.visible = opacity > 0.002 // fully faded shapes cost no draw call
     })
-    if (group.current) group.current.rotation.y = s.mx * 0.12
 
+    // small scroll-linked sway + very small damped cursor parallax
+    if (group.current) {
+      group.current.position.set(Math.sin(p * Math.PI * 2) * SWAY, 0, 0)
+      group.current.rotation.set(s.my * CURSOR_PARALLAX, s.mx * CURSOR_PARALLAX, 0)
+    }
+
+    // Camera stays fixed; only the field of view follows the aspect ratio.
     const fov = size.width / size.height < 1 ? 62 : 50
     if (camera.fov !== fov) {
       camera.fov = fov
       camera.updateProjectionMatrix()
     }
-    camera.position.set(s.mx * 1.2, -p * 18 + s.my * 0.6, 14)
-    camera.lookAt(s.mx * 0.4, -p * 18, 0)
+
+    // frameloop="demand": keep the idle drift (and the shared DocketObject) animating
+    if (!reduce) invalidate()
   })
 
   return (
@@ -151,9 +204,9 @@ function Shapes({ count, reduce, dark, glowRef }) {
             key={o.i}
             ref={(m) => (meshes.current[o.i] = m)}
             geometry={geos[o.i % 3]}
-            material={mats[o.i % 3]}
-            position={o.pos}
-            rotation={o.rot}
+            material={mats[o.i]}
+            position={[o.baseX, o.baseY, o.baseZ]}
+            rotation={[o.rotX, o.rotY, 0]}
             scale={o.scale}
           />
         ))}
@@ -199,7 +252,7 @@ export default function DriftBackground({ dark = true }) {
       {webgl && (
         <Canvas
           aria-hidden="true"
-          frameloop={reduce ? 'demand' : 'always'}
+          frameloop="demand"
           dpr={[1, mobile ? 1.25 : 1.5]}
           gl={{ alpha: true, antialias: !mobile, powerPreference: 'low-power' }}
           camera={{ fov: 50, near: 0.1, far: 200, position: [0, 0, 14] }}
@@ -212,7 +265,13 @@ export default function DriftBackground({ dark = true }) {
             transition: reduce ? 'none' : 'opacity 1.6s ease',
           }}
         >
-          <Shapes count={mobile ? 22 : 42} reduce={reduce} dark={dark} glowRef={glowRef} />
+          <Shapes
+            count={mobile ? COUNTS.phone : COUNTS.desktop}
+            reduce={reduce}
+            dark={dark}
+            mobile={mobile}
+            glowRef={glowRef}
+          />
           <DocketObject dark={dark} reduce={reduce} />
         </Canvas>
       )}

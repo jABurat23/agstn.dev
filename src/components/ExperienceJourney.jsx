@@ -53,7 +53,8 @@ export default function ExperienceJourney() {
 
       if (isMobileLayout() || prefersReducedMotion()) {
         [
-          "--journey-progress",
+          "--journey-t",
+          "--journey-e",
           "--hero-opacity",
           "--about-opacity",
           "--timeline-opacity",
@@ -82,11 +83,14 @@ export default function ExperienceJourney() {
 
       const aboutOpacity = Math.min(clamp01((t - 0.18) * 4), clamp01(1 - e * 4));
 
-      journey.style.setProperty("--journey-progress", t.toFixed(4));
+      // t and e drive the portrait's pose/lights; the portrait slides 55% -> 9%
+      // then a little further left for Experience.
+      journey.style.setProperty("--journey-t", t.toFixed(4));
+      journey.style.setProperty("--journey-e", e.toFixed(4));
       journey.style.setProperty("--hero-opacity", Math.max(1 - t * 3.2, 0).toFixed(4));
       journey.style.setProperty("--about-opacity", aboutOpacity.toFixed(4));
       journey.style.setProperty("--timeline-opacity", clamp01((e - 0.3) * 4).toFixed(4));
-      journey.style.setProperty("--portrait-left", `${55 - t * 46}%`);
+      journey.style.setProperty("--portrait-left", String(55 - t * 46 - e * 3));
       journey.style.setProperty("--scroll-cue-opacity", Math.max(1 - t * 4, 0).toFixed(4));
 
       const heroHidden = t >= 0.4;
