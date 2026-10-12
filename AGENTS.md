@@ -45,6 +45,7 @@ Check: `npm run build`.
 - Respect `prefers-reduced-motion`; nothing important may depend on animation alone.
 - The custom cursor is desktop-only. Never hide the pointer on touch devices.
 - Keep 3D light: pause offscreen, cap pixel ratio, lazy-load, and keep a fallback if the model or WebGL fails. Small models, simpler or static on phones.
+- Small images (under 4 KiB) are inlined into the JS by Vite; import above-the-fold or repeated images with ?no-inline.
 
 ## Current structure (do not undo)
 

@@ -1,5 +1,5 @@
 // Dev-only sample rows so the Projects layout can be checked with a few entries.
-// `placeholder: true` marks content that must never ship; see AGENTS.MD. They carry
+// `placeholder: true` marks content that must never ship; see AGENTS.md. They carry
 // no `scene`, so no 3D object is drawn in their row.
 const placeholderProjects = [
   {
