@@ -48,12 +48,15 @@ src/
 │   ├── SocialLink.jsx
 │   ├── StackSection.jsx
 │   ├── Wordmark.jsx
-│   └── PortraitModel.jsx
+│   ├── PortraitModel.jsx
+│   └── portraitStates.js
 ├── data/
 │   └── portfolioData.js    # Projects, stack groups, social links, credits
 └── hooks/
     └── useScrollReveals.js # GSAP ScrollTrigger wrapper (data-* declarative reveals)
 ```
+
+Top level: `previews/` holds the approved standalone HTML previews (not imported by the app or shipped in the build); `archive/` is historical and never imported.
 
 ## Getting Started
 
@@ -75,7 +78,7 @@ npm run preview
 
 All copy lives in `src/data/portfolioData.js` and `src/components/ExperienceTimeline.jsx` — edit there, not in presentation components.
 
-- **Projects**: add objects to `projects` array; include `href` to make a row a link.
+- **Projects**: add objects to `projects` array; include `href` to make a row a link. Dev-only sample rows are marked `placeholder: true` and are excluded from production builds.
 - **Stack**: edit `stackGroups` (title + items).
 - **Social**: edit `socialLinks` (label + href).
 - **Timeline**: add milestone objects to `milestones` in `ExperienceTimeline.jsx`.

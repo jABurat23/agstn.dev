@@ -23,10 +23,10 @@ Check: `npm run build`.
 ## Design rules
 
 - Direction: cinematic editorial, minimal and clean. One focal point per section, generous space, open layouts with hairlines. No card grids, heavy shadows or glassmorphism.
-- **No terminal or code-editor visuals:** no window-dot headers, `~/PATH` titles, `//` or `>` labels, shell prompts, block cursors, or HUD text. `TerminalHeader.jsx` is legacy; never reuse it.
+- **No terminal or code-editor visuals:** no window-dot headers, `~/PATH` titles, `//` or `>` labels, shell prompts, block cursors, or HUD text.
 - Fonts: **Changa One** for the wordmark, **Inter** for content, **JetBrains Mono** only for tiny metadata labels.
 - Colors are CSS variables in `src/index.css` (`--ink`, `--primary-text`, `--secondary-text`, `--muted-text`, `--primary-accent` cyan, `--secondary-accent` blue, `--hairline`). Don't hard-code colors. Cyan and blue act as light sources, not large blocks.
-- Light and dark themes must both work. Don't just invert dark for light.
+- Light and dark themes must both work. Don't just invert dark for light. Dark mode is **class-based**: the app toggles `.dark` on its root element, and `@custom-variant dark (&:where(.dark, .dark *))` in `src/index.css` wires Tailwind's `dark:` utilities to that class (not the OS preference).
 
 ## Content rules
 
@@ -51,17 +51,18 @@ Page order: `SiteNavigation` → `ExperienceJourney` (hero → About → experie
 - `Wordmark.jsx`: `AG$TN`, no brackets. Letters reveal one by one, replay once, then stay visible. Static with reduced motion.
 - `RoleSwap.jsx`: the "Developer + swapping word" line (GSAP).
 - `CustomCursor.jsx`: 20px ring moved with `transform` in one animation-frame loop; shrinks to a dot over links and buttons. No `left`/`top` transitions or per-move React state.
-- `BiometricPortrait.jsx` + `PortraitModel.jsx`: loads `public/models/portrait_animation.glb`; looping blink; eased head-follow only while the pointer is over the hero.
-- `DriftBackground.jsx` + `DocketObject.jsx`: ambient 3D shapes and the Docket object share one Canvas.
+- `BiometricPortrait.jsx` + `PortraitModel.jsx` + `portraitStates.js`: loads `public/models/portrait_animation_v2.glb`; looping blink; eased head-follow only while the pointer is over the hero. `portraitStates.js` holds the per-step pose, light and framing for the About and Experience steps.
+- `DriftBackground.jsx` + `DocketObject.jsx`: ambient 3D shapes and the Docket object share one Canvas. The background reads scroll progress as a depth-travel/parallax layer (camera fixed).
 - `useScrollReveals.js`: GSAP reveals driven by `data-*` attributes (`data-reveal`, `data-line`, `data-vl`, `data-mask`, `data-fade`). Use it for new reveals instead of writing new scroll code.
 - `ExperienceJourney.jsx`: the hero → About → timeline progress logic. Reuse it for anything scroll-linked.
 - Content lives in `src/data/portfolioData.js` and `ExperienceTimeline.jsx`, not inside presentation components.
+- `previews/` holds the approved standalone HTML previews (kept for reference, not part of the build). `archive/` is historical — never import from it.
 
 ## Planned work (don't start unless the user asks for that item)
 
 1. Portrait states: different pose, look and framing in the About vs Experience steps, procedural (no new GLB clips). - ` DONE `
 2. Real contact links and real timeline entries.
-3. Slim the portrait `.glb` (offline `gltf-transform`) and delete the unused GLBs.
+3. Slim the portrait `.glb` (offline `gltf-transform`).
 4. Lighthouse, keyboard, reduced-motion and phone checks.
 5. Publish prep (title, description, favicon, share image, hosting).
 

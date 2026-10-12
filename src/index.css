@@ -7,8 +7,6 @@
 
 :root {
   --ink: #f3f6f8;
-  --deep-surface: #e9eef2;
-  --raised-surface: #fff;
   --primary-text: #101a27;
   --secondary-text: #526274;
   --muted-text: #5f7082;
@@ -22,8 +20,6 @@
 
 .dark {
   --ink: #070b12;
-  --deep-surface: #0d1420;
-  --raised-surface: #121d2b;
   --primary-text: #ecf4fa;
   --secondary-text: #a5b4c4;
   --muted-text: #718398;
@@ -506,13 +502,13 @@ body:has(.dark) {
   background: #666;
 }
 
-   /* Dim the other project rows while one is hovered or focused. */
-   @media (hover: hover) {
-     .project-list:hover > .project-row:not(:hover) {
-       opacity: 0.4;
-     }
-   }
+/* Dim the other project rows while one is hovered or focused. */
+@media (hover: hover) {
+  .project-list:hover > .project-row:not(:hover) {
+    opacity: 0.4;
+  }
+}
 
-   .project-list:focus-within > .project-row:not(:focus-within) {
-     opacity: 0.4;
-   }
+.project-list:focus-within > .project-row:not(:focus-within) {
+  opacity: 0.4;
+}
