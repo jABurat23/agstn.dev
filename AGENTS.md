@@ -20,6 +20,15 @@ Check: `npm run build`.
 8. **If the user pastes finished files, apply them exactly.** Don't reinterpret or "fix" them.
 9. **Don't move on to the next task or phase on your own.** Finish, report using the checklist at the bottom, and wait.
 
+## Token-saving shell commands (RTK)
+
+RTK is installed. Use the compact versions of noisy commands:
+- `rtk git status`, `rtk git diff`, `rtk git log -n 10`
+- `rtk ls .`, `rtk read <file>`, `rtk grep "<pattern>" .`
+- For test, lint and build output, use `rtk err <command>` or `rtk test <command>` where it fits.
+
+If you need the full raw output for debugging, run the plain command or `rtk proxy <command>`.
+
 ## Design rules
 
 - Direction: cinematic editorial, minimal and clean. One focal point per section, generous space, open layouts with hairlines. No card grids, heavy shadows or glassmorphism.
