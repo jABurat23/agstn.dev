@@ -8,7 +8,7 @@
   Standalone preview only. It is NOT imported by the app or the build.
   Serve it from the project root so the GLB resolves:  npx vite
   then open  http://localhost:5173/preview-portrait-states.html
-  Opening this file directly (file://) will not find public/models/portrait_animation.glb.
+  Opening this file directly (file://) will not find public/models/portrait_animation_v2.glb.
 -->
 <style>
   @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
@@ -402,7 +402,7 @@ let reduced = motionQuery.matches;
 motionQuery.addEventListener('change', () => { reduced = motionQuery.matches; });
 
 // ── Three.js setup ────────────────────────────────────────────────────
-const MODEL_URL = new URL('models/portrait_animation.glb', location.href).href;
+const MODEL_URL = new URL('models/portrait_animation_v2.glb', location.href).href;
 const NECK_PIVOT_Y = -1.3;
 const MAX_YAW = THREE.MathUtils.degToRad(15);
 const MAX_PITCH = THREE.MathUtils.degToRad(8);
