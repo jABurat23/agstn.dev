@@ -1,3 +1,5 @@
+Archived: outdated, see AGENTS.md for current rules.
+
 # Master Prompt: AGSTN Interactive Developer Portfolio
 
 You are helping me design and build my personal developer portfolio. Treat this document as the project brief and keep it as the source of truth as the portfolio evolves.
