@@ -163,6 +163,16 @@ body {
   mask-image: radial-gradient(ellipse at 50% 48%, #000 48%, transparent 82%);
 }
 
+/* Shared section wrapper: every content section has the same heading, hairline,
+   spacing and rhythm, and is at least one screen tall. */
+.section-shell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100svh;
+  padding-block: clamp(4.5rem, 11vh, 7rem);
+}
+
 .experience-journey {
   position: relative;
   height: calc(360svh + var(--journey-entries, 1) * 80svh);
@@ -231,7 +241,7 @@ body {
 
 .journey-about h2,
 .journey-timeline h2 {
-  margin: 0 0 38px;
+  margin: 0;
   font-size: clamp(1.75rem, 3vw, 2.6rem);
   font-weight: 500;
   letter-spacing: -0.055em;
@@ -442,7 +452,6 @@ body {
 
   .journey-about h2,
   .journey-timeline h2 {
-    margin-bottom: 28px;
     font-size: 2rem;
   }
 

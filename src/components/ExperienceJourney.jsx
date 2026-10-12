@@ -173,19 +173,23 @@ export default function ExperienceJourney() {
 
         <section className="journey-about" ref={aboutRef} aria-labelledby="about-heading">
           <h2 id="about-heading">About</h2>
-          <p>{heroContent.summary}</p>
+          <div className="mt-10 h-px bg-[var(--hairline)]" />
 
-          <div className="hero-details mt-8 grid grid-cols-1 gap-x-10 gap-y-4 text-xs sm:grid-cols-3 sm:gap-y-2">
-            {heroContent.details.map(({ label, value }) => (
-              <div className="flex flex-col gap-1.5" key={label}>
-                <span className="font-medium uppercase tracking-[0.16em] text-[var(--muted-text)]">
-                  {label}
-                </span>
-                <span className="tracking-[0.04em] text-[var(--secondary-text)]">
-                  {value}
-                </span>
-              </div>
-            ))}
+          <div className="mt-8">
+            <p>{heroContent.summary}</p>
+
+            <div className="hero-details mt-8 grid grid-cols-1 gap-x-10 gap-y-4 text-xs sm:grid-cols-3 sm:gap-y-2">
+              {heroContent.details.map(({ label, value }) => (
+                <div className="flex flex-col gap-1.5" key={label}>
+                  <span className="font-medium uppercase tracking-[0.16em] text-[var(--muted-text)]">
+                    {label}
+                  </span>
+                  <span className="tracking-[0.04em] text-[var(--secondary-text)]">
+                    {value}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 

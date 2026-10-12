@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Whole-Site Section Preview — AGSTN</title>
+<!--
+  Standalone preview only. It is NOT imported by the app or the build.
+  Purpose: show ONE shared section wrapper (heading + hairline + spacing + equal
+  height) applied to the whole site: hero, About, Experience, Projects, Stack, Contact.
+  Each section carries a single heading hairline (no extra boundary lines).
+  In the app the About/Experience copy lives in the scroll-driven 3D journey; here
+  those two are shown as static panels only so the heading rhythm can be compared.
+  Open directly (file://) or serve from the project root: npx vite
+-->
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Changa+One&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
+
+  /* ---- App tokens (kept in sync with src/index.css) ---- */
+  :root {
+    --page-bg: #f7f6fb;
+    --primary-text: #14111f;
+    --secondary-text: #453f5a;
+    --muted-text: #5f5a74;
+    --primary-accent: #5b3fd1;
+    --secondary-accent: #07717d;
+    --hairline: rgb(20 17 31 / 14%);
+    --portrait-halo: rgb(91 63 209 / 12%);
+    color-scheme: light;
+  }
+  .dark {
+    --page-bg: #0a0a14;
+    --primary-text: #eef0f8;
+    --secondary-text: #aeb3c8;
+    --muted-text: #8388a3;
+    --primary-accent: #a78bfa;
+    --secondary-accent: #62e6f2;
+    --hairline: rgb(174 180 200 / 16%);
+    --portrait-halo: rgb(167 139 250 / 14%);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    min-width: 320px;
+    background: var(--page-bg);
+    color: var(--primary-text);
+    font-family: "Inter", sans-serif;
+    transition: background-color 300ms ease, color 300ms ease;
+  }
+  a { color: inherit; }
+
+  .container { margin: 0 auto; max-width: 1500px; padding: 0 20px; }
+  @media (min-width: 640px) { .container { padding: 0 32px; } }
+  @media (min-width: 1024px) { .container { padding: 0 48px; } }
+
+  /* ---- Nav (mirrors SiteNavigation) ---- */
+  .nav { border-bottom: 1px solid var(--hairline); }
+  .nav-inner { height: 6rem; display: flex; align-items: center; justify-content: flex-end; gap: 1.75rem; font-size: 0.875rem; font-weight: 500; }
+  .nav-inner a { color: var(--secondary-text); text-decoration: none; }
+  .nav-inner a:hover { color: var(--primary-accent); }
+  .nav-theme { border: 1px solid var(--hairline); background: transparent; color: var(--secondary-text); border-radius: 999px; padding: 6px 10px; font: inherit; font-size: 12px; cursor: pointer; }
+
+  /* ---- The shared section wrapper (the whole point) ---- */
+  .section {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;            /* vertical centring only */
+    min-height: var(--section-min, 0px); /* 100svh when "equal" is on */
+    padding-block: clamp(4.5rem, 11vh, 7rem);
+  }
+  .section-heading {
+    margin: 0;
+    font-size: clamp(1.75rem, 3vw, 2.6rem);
+    font-weight: 500;
+    letter-spacing: -0.055em;
+    color: var(--primary-text);
+    text-transform: none;
+  }
+  .section-rule { margin-top: 2.5rem; height: 1px; background: var(--hairline); }
+  .section-body { margin-top: 2rem; }
+
+  /* ---- Controls ---- */
+  .controls { position: fixed; z-index: 60; top: 16px; right: 16px; display: flex; gap: 8px; }
+  .controls button {
+    font: inherit; font-size: 12px; padding: 8px 12px; border-radius: 999px;
+    border: 1px solid var(--hairline);
+    background: color-mix(in srgb, var(--page-bg) 82%, transparent);
+    color: var(--primary-text); backdrop-filter: blur(8px); cursor: pointer;
+  }
+  .controls button[aria-pressed="true"] { border-color: var(--primary-accent); color: var(--primary-accent); }
+  .badge {
+    position: fixed; z-index: 55; top: 28px; left: max(20px, calc((100vw - 1500px) / 2 + 20px));
+    width: 40px; height: 40px; border-radius: 999px;
+    background: linear-gradient(140deg, color-mix(in srgb, var(--primary-accent) 55%, transparent), color-mix(in srgb, var(--secondary-accent) 45%, transparent));
+    border: 1px solid var(--hairline);
+  }
+  @media (min-width: 640px) { .badge { left: max(32px, calc((100vw - 1500px) / 2 + 32px)); } }
+  @media (min-width: 1024px) { .badge { left: max(48px, calc((100vw - 1500px) / 2 + 48px)); } }
+
+  /* ---- Hero ---- */
+  .hero-copy { position: relative; z-index: 2; }
+  .wordmark { margin: 0; font-family: "Changa One", cursive; font-weight: 400; line-height: 0.92; letter-spacing: -0.02em; font-size: clamp(3.25rem, 11vw, 9rem); }
+  .role { margin-top: 2rem; font-size: clamp(1.8rem, 3.4vw, 2.9rem); font-weight: 500; line-height: 1.2; letter-spacing: -0.03em; }
+  .role-rule { display: inline-block; height: 1px; width: clamp(60px, 12vw, 200px); background: var(--muted-text); vertical-align: middle; margin: 0 1.25rem; }
+  .role-plus { font-weight: 800; color: var(--muted-text); }
+  .hero-cta { display: inline-flex; align-items: center; gap: 0.75rem; margin-top: 2.5rem; padding: 0.625rem 1rem; border: 1px solid color-mix(in srgb, var(--primary-accent) 58%, transparent); color: var(--primary-text); text-decoration: none; font-size: 0.875rem; font-weight: 500; border-radius: 2px; }
+  .hero-cta:hover { border-color: var(--primary-accent); }
+  .hero-halo {
+    position: absolute; z-index: 1; right: 4%; top: 50%; width: min(34%, 420px); aspect-ratio: 4 / 4.4; transform: translateY(-50%);
+    border-radius: 50%;
+    background: radial-gradient(ellipse at 50% 44%, color-mix(in srgb, var(--primary-accent) 21%, transparent), var(--portrait-halo) 40%, color-mix(in srgb, var(--secondary-accent) 9%, transparent) 62%, transparent 76%);
+    filter: blur(20px); pointer-events: none;
+  }
+  .scroll-cue { margin-top: 3rem; font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted-text); }
+
+  /* ---- About ---- */
+  .about-copy { max-width: 46ch; margin: 0; color: var(--secondary-text); font-size: clamp(1rem, 1.5vw, 1.2rem); line-height: 1.65; }
+  .details { margin-top: 2rem; display: grid; gap: 1rem 2.5rem; font-size: 12px; }
+  @media (min-width: 640px) { .details { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .details dt { font-weight: 500; text-transform: uppercase; letter-spacing: 0.16em; color: var(--muted-text); }
+  .details dd { margin: 0.375rem 0 0; letter-spacing: 0.04em; color: var(--secondary-text); }
+
+  /* ---- Experience timeline ---- */
+  .timeline { position: relative; display: grid; gap: 2rem; margin: 0; padding: 0 0 0 25px; list-style: none; }
+  .timeline::before { content: ""; position: absolute; top: 7px; bottom: 9px; left: 3px; width: 1px; background: var(--hairline); }
+  .timeline li { position: relative; }
+  .timeline li::before { content: ""; position: absolute; top: 5px; left: -26px; width: 7px; height: 7px; border: 1px solid var(--primary-accent); border-radius: 50%; background: var(--page-bg); }
+  .timeline-date { font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: 0.16em; color: var(--muted-text); }
+  .timeline h3 { margin: 0.5rem 0 0.75rem; font-size: 1.25rem; font-weight: 500; letter-spacing: -0.02em; }
+  .timeline p { margin: 0; max-width: 52ch; color: var(--secondary-text); font-size: 0.95rem; line-height: 1.6; }
+
+  /* ---- Projects ---- */
+  .project-row { display: grid; grid-template-columns: 2.5rem 1fr; gap: 1rem; border-bottom: 1px solid var(--hairline); padding: 2rem 0; }
+  @media (min-width: 768px) { .project-row { grid-template-columns: 4rem minmax(0, 1.2fr) minmax(0, 1fr); align-items: center; padding: 2.5rem 0; } }
+  .project-id { font-size: 12px; letter-spacing: 0.16em; color: var(--muted-text); }
+  .project-name { margin: 0; font-family: "Changa One", cursive; font-weight: 400; font-size: clamp(2.25rem, 6vw, 5rem); line-height: 1; letter-spacing: -0.04em; }
+  .project-desc { margin: 0; max-width: 28rem; font-size: 0.875rem; line-height: 1.5rem; color: var(--secondary-text); }
+  .project-stack { margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0 1rem; font-size: 12px; color: var(--muted-text); }
+
+  /* ---- Stack ---- */
+  .stack-grid { display: grid; gap: 2.5rem; }
+  @media (min-width: 640px) { .stack-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .stack-title { margin: 0 0 1rem; font-size: 0.75rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.16em; color: var(--muted-text); }
+  .stack-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.5rem; }
+  .stack-list li { font-size: 1.125rem; color: var(--secondary-text); }
+
+  /* ---- Contact ---- */
+  .contact-links { display: flex; flex-wrap: wrap; gap: 1rem 3rem; }
+  .contact-link { display: inline-flex; align-items: center; gap: 0.75rem; font-family: "Changa One", cursive; font-size: clamp(2.25rem, 6vw, 4.5rem); line-height: 1; letter-spacing: -0.04em; text-decoration: none; color: var(--primary-text); }
+  .contact-link:hover { color: var(--primary-accent); }
+  .mark { font-family: "Changa One", cursive; font-size: 1.25rem; margin-top: 3rem; }
+  .meta { margin-top: 2.5rem; display: grid; gap: 1.25rem 2.5rem; font-size: 12px; }
+  @media (min-width: 640px) { .meta { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .meta dt { font-weight: 500; text-transform: uppercase; letter-spacing: 0.16em; color: var(--muted-text); }
+  .meta dd { margin: 0.375rem 0 0; color: var(--secondary-text); }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <button id="heightBtn" aria-pressed="true">Equal heights: ON</button>
+  <button id="themeBtn" aria-pressed="false">Dark: OFF</button>
+</div>
+<div class="badge" aria-hidden="true"></div>
+
+<main id="page">
+  <nav class="nav" aria-label="Main navigation">
+    <div class="container nav-inner">
+      <a href="#projects">Projects</a>
+      <a href="#experience">Experience</a>
+      <button class="nav-theme" type="button">Toggle theme</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="section" id="hero" aria-label="Introduction">
+    <div class="container" style="position: relative;">
+      <div class="hero-halo" aria-hidden="true"></div>
+      <div class="hero-copy">
+        <h1 class="wordmark">AG$TN</h1>
+        <p class="role">Developer <span class="role-rule"></span> <span class="role-plus">+</span> Builder</p>
+        <a class="hero-cta" href="#projects">View work ↗</a>
+        <div class="scroll-cue">Scroll to explore</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ABOUT -->
+  <section class="section" id="about" aria-labelledby="about-heading">
+    <div class="container">
+      <h2 class="section-heading" id="about-heading">About</h2>
+      <div class="section-rule"></div>
+      <div class="section-body">
+        <p class="about-copy">An Information Technology student and independent developer who enjoys building practical software, exploring systems, and turning ideas into simple, thoughtful digital experiences.</p>
+        <dl class="details">
+          <div><dt>Location</dt><dd>PH</dd></div>
+          <div><dt>Status</dt><dd>Building</dd></div>
+          <div><dt>Focus</dt><dd>Software / Web</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- EXPERIENCE -->
+  <section class="section" id="experience" aria-labelledby="experience-heading">
+    <div class="container">
+      <h2 class="section-heading" id="experience-heading">Experience</h2>
+      <div class="section-rule"></div>
+      <div class="section-body">
+        <ol class="timeline">
+          <li>
+            <span class="timeline-date">2024 — Present</span>
+            <h3>Independent Developer</h3>
+            <p>Building experimental applications, device tooling, web interfaces, and local-first utilities while studying information technology.</p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- PROJECTS -->
+  <section class="section" id="projects" aria-labelledby="projects-heading">
+    <div class="container">
+      <h2 class="section-heading" id="projects-heading">Projects</h2>
+      <div class="section-rule"></div>
+      <div class="section-body">
+        <div class="project-row">
+          <span class="project-id">01</span>
+          <h3 class="project-name">DOCKET</h3>
+          <div>
+            <p class="project-desc">Replaces separate spreadsheets for budgeting and freelance work.</p>
+            <div class="project-stack"><span>Next.js</span><span>Supabase</span><span>TypeScript</span></div>
+          </div>
+        </div>
+        <div class="project-row">
+          <span class="project-id">02</span>
+          <h3 class="project-name">Coming soon…</h3>
+          <div></div>
+        </div>
+        <div class="project-row">
+          <span class="project-id">03</span>
+          <h3 class="project-name">Coming soon…</h3>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- STACK -->
+  <section class="section" id="stack" aria-labelledby="stack-heading">
+    <div class="container">
+      <h2 class="section-heading" id="stack-heading">Stack</h2>
+      <div class="section-rule"></div>
+      <div class="section-body stack-grid">
+        <div>
+          <h3 class="stack-title">Languages</h3>
+          <ul class="stack-list"><li>JavaScript</li><li>Rust</li></ul>
+        </div>
+        <div>
+          <h3 class="stack-title">Frameworks &amp; runtime</h3>
+          <ul class="stack-list"><li>React</li><li>Next.js</li><li>Node.js</li><li>Tailwind</li></ul>
+        </div>
+        <div>
+          <h3 class="stack-title">Tools &amp; systems</h3>
+          <ul class="stack-list"><li>Git</li><li>Linux</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- CONTACT -->
+  <section class="section" id="contact" aria-labelledby="contact-heading">
+    <div class="container">
+      <h2 class="section-heading" id="contact-heading">Let's connect</h2>
+      <div class="section-rule"></div>
+      <div class="section-body">
+        <div class="contact-links">
+          <a class="contact-link" href="mailto:agstn.dev@gmail.com">Email ↗</a>
+          <a class="contact-link" href="https://github.com/jABurat23" target="_blank" rel="noreferrer">GitHub ↗</a>
+        </div>
+        <div class="mark">AGSTN</div>
+        <dl class="meta">
+          <div><dt>Typeface</dt><dd>Inter, Changa One</dd></div>
+          <div><dt>Built with</dt><dd>React, Vite, Tailwind, Three.js, GSAP</dd></div>
+          <div><dt>Inspired by</dt><dd>Hamish Williams, Chánh Đại</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  const page = document.getElementById("page");
+  const heightBtn = document.getElementById("heightBtn");
+  const themeBtn = document.getElementById("themeBtn");
+  const navTheme = document.querySelector(".nav-theme");
+
+  let equal = true;
+  let dark = false;
+
+  function applyHeight() {
+    page.style.setProperty("--section-min", equal ? "100svh" : "0px");
+    heightBtn.textContent = "Equal heights: " + (equal ? "ON" : "OFF");
+    heightBtn.setAttribute("aria-pressed", String(equal));
+  }
+  function applyTheme() {
+    document.documentElement.classList.toggle("dark", dark);
+    themeBtn.textContent = "Dark: " + (dark ? "ON" : "OFF");
+    themeBtn.setAttribute("aria-pressed", String(dark));
+  }
+
+  heightBtn.addEventListener("click", () => { equal = !equal; applyHeight(); });
+  themeBtn.addEventListener("click", () => { dark = !dark; applyTheme(); });
+  navTheme.addEventListener("click", () => { dark = !dark; applyTheme(); });
+  applyHeight();
+  applyTheme();
+</script>
+</body>
+</html>

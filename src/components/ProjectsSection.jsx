@@ -1,16 +1,11 @@
 import ProjectCard from "./ProjectCard";
-import SectionHeading from "./SectionHeading";
+import Section from "./Section";
 import { projects } from "../data/portfolioData";
 
 export default function ProjectsSection() {
   return (
-    <section id="projects" aria-labelledby="projects-heading" className="pt-24 sm:pt-32">
-      <div data-reveal data-fade>
-        <SectionHeading id="projects-heading">Projects</SectionHeading>
-      </div>
-
-      <div className="project-list mt-10">
-        <div data-line className="h-px bg-[var(--hairline)]" />
+    <Section id="projects" title="Projects">
+      <div className="project-list">
         {projects.map((project) => (
           <div key={project.id} data-reveal data-fade className="relative">
             <ProjectCard project={project} />
@@ -24,6 +19,6 @@ export default function ProjectsSection() {
           </div>
         ))}
       </div>
-    </section>
+    </Section>
   );
 }
