@@ -1,4 +1,5 @@
 import { Moon, Sun } from "lucide-react";
+import MemojiBadge from "./MemojiBadge";
 
 export default function SiteNavigation({ dark, onToggleTheme }) {
   return (
@@ -6,6 +7,7 @@ export default function SiteNavigation({ dark, onToggleTheme }) {
       className="flex h-24 items-center justify-end border-b border-[var(--hairline)]"
       aria-label="Main navigation"
     >
+      <MemojiBadge />
       <div className="hero-nav-links flex items-center gap-7 font-['Inter'] text-sm font-medium">
         <a
           href="#projects"
