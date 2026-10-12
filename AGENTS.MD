@@ -57,6 +57,7 @@ Page order: `SiteNavigation` → `ExperienceJourney` (hero → About → experie
 - `ExperienceJourney.jsx`: the hero → About → timeline progress logic. Reuse it for anything scroll-linked.
 - Content lives in `src/data/portfolioData.js` and `ExperienceTimeline.jsx`, not inside presentation components.
 - `previews/` holds the approved standalone HTML previews (kept for reference, not part of the build). `archive/` is historical — never import from it.
+- Favicon files live in `public/` and are referenced from `index.html`; do not regenerate or edit them.
 
 ## Planned work (don't start unless the user asks for that item)
 
