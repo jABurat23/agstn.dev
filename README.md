@@ -2,6 +2,10 @@
 
 Personal developer portfolio for **AGSTN** — BSIT student and independent developer in the Philippines.
 
+![AGSTN portfolio — hero](docs/screenshot.png)
+
+> **Source code is private.** This repository is not public and the code is not licensed for reuse.
+
 ## Stack
 
 - **Vite + React 19** (JavaScript/JSX)
@@ -118,4 +122,4 @@ npm run build
 
 ## License
 
-MIT — use freely for your own portfolio.
+All rights reserved. The source code is private and is not licensed for reuse.
