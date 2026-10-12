@@ -1,6 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Changa+One:ital@0;1&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
+/* Tailwind v4 defaults `dark:` to prefers-color-scheme; the app toggles a `.dark`
+   class on its root element instead, so opt into class-based dark mode. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --ink: #f3f6f8;
   --deep-surface: #e9eef2;
