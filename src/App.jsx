@@ -73,11 +73,7 @@ export default function App() {
 
   return (
     <div
-      className={
-        dark
-          ? "dark min-h-screen bg-black text-white transition-colors duration-300"
-          : "min-h-screen bg-white text-black transition-colors duration-300"
-      }
+      className={`${dark ? "dark " : ""}min-h-screen bg-[var(--page-bg)] text-[var(--primary-text)] transition-colors duration-300`}
     >
       <CustomCursor />
       {bgReady && (

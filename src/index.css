@@ -6,7 +6,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --ink: #f3f6f8;
+  /* Surfaces + text */
+  --page-bg: #ffffff;
   --primary-text: #101a27;
   --secondary-text: #526274;
   --muted-text: #5f7082;
@@ -14,12 +15,50 @@
   --secondary-accent: #315fcb;
   --hairline: rgb(16 26 39 / 15%);
   --portrait-halo: rgb(8 127 140 / 13%);
+
+  /* Selection + scrollbar (same in both themes) */
+  --selection-bg: #ffffff;
+  --selection-text: #000000;
+  --scrollbar: #444444;
+  --scrollbar-hover: #666666;
+
+  /* 3D drift shapes, fog and ambient fill (light) */
+  --shape-1: #c4d4ee;
+  --shape-2: #d3dff2;
+  --shape-3: #b3c7e8;
+  --fog: #ffffff;
+  --ambient: #dfe8ff;
+
+  /* 3D Docket object (light) */
+  --docket-panel: #c4d4ee;
+  --docket-accent: #1aa8bd;
+  --docket-edge: #5b8cff;
+
+  /* 3D key-light palette, blue fill light and glow (same in both themes) */
+  --glow-1: #62e6f2;
+  --glow-2: #5b8cff;
+  --glow-3: #8fa6ff;
+  --glow-4: #62e6f2;
+  --glow: #62e6f2;
+  --fill: #5b8cff;
+
+  /* Portrait lights (same in both themes) */
+  --hemi-sky: #cfe6ff;
+  --hemi-ground: #0d1420;
+  --portrait-key: #ffffff;
+  --rim-1: #62e6f2;
+  --rim-2: #5b8cff;
+
   font-family: "Inter", sans-serif;
   color-scheme: light;
 }
 
-.dark {
-  --ink: #070b12;
+/* The app toggles `.dark` on its root wrapper, so mirror the dark tokens onto
+   <html> too. That keeps the page behind the scrollbar (body) in step and lets
+   the 3D layer read the active theme from the document element. */
+.dark,
+:root:has(.dark) {
+  --page-bg: #000000;
   --primary-text: #ecf4fa;
   --secondary-text: #a5b4c4;
   --muted-text: #718398;
@@ -27,6 +66,19 @@
   --secondary-accent: #5b8cff;
   --hairline: rgb(165 180 196 / 16%);
   --portrait-halo: rgb(98 230 242 / 14%);
+
+  --shape-1: #16233a;
+  --shape-2: #1c2d4a;
+  --shape-3: #101a2c;
+  --fog: #070b12;
+  --ambient: #3a4a66;
+
+  --docket-panel: #16233a;
+  --docket-accent: #62e6f2;
+  --docket-edge: #5b8cff;
+}
+
+.dark {
   color-scheme: dark;
 }
 
@@ -37,12 +89,7 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  background: #fff;
-}
-
-/* Keep the page behind the scrollbar in step with the theme toggle. */
-body:has(.dark) {
-  background: #000;
+  background: var(--page-bg);
 }
 
 @media (hover: hover) and (pointer: fine) and (min-width: 768px) {
@@ -54,8 +101,8 @@ body:has(.dark) {
 }
 
 ::selection {
-  background: #fff;
-  color: #000;
+  background: var(--selection-bg);
+  color: var(--selection-text);
 }
 
 .hero-nav-links a {
@@ -213,7 +260,7 @@ body:has(.dark) {
   height: 7px;
   border: 1px solid var(--muted-text);
   border-radius: 50%;
-  background: var(--ink);
+  background: var(--page-bg);
   content: "";
   transition:
     border-color 250ms ease,
@@ -495,11 +542,11 @@ body:has(.dark) {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #444;
+  background: var(--scrollbar);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #666;
+  background: var(--scrollbar-hover);
 }
 
 /* Dim the other project rows while one is hovered or focused. */

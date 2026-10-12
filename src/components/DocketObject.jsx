@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
+import { useThemeColors } from '../themeColors'
 
 // Renders inside the background canvas (no extra WebGL context). The object is
 // pinned on screen to the element marked data-docket-zone in the Projects row.
 const ZONE_SELECTOR = '[data-docket-zone]'
+const DOCKET_NAMES = ['--docket-panel', '--docket-accent', '--docket-edge']
 const NOMINAL_HEIGHT = 2.8 // object height in world units at scale 1
 
 const LINK_A = new THREE.Vector3(-0.95, -0.7, 0.2) // Pipeline
@@ -30,13 +32,8 @@ export default function DocketObject({ dark, reduce }) {
   const presence = useRef(0)
   const { camera, size } = useThree()
 
-  const colors = useMemo(
-    () =>
-      dark
-        ? { panel: 0x16233a, accent: 0x62e6f2, edge: 0x5b8cff }
-        : { panel: 0xc4d4ee, accent: 0x1aa8bd, edge: 0x5b8cff },
-    [dark],
-  )
+  const [panel, accent, edge] = useThemeColors(DOCKET_NAMES, dark)
+  const colors = useMemo(() => ({ panel, accent, edge }), [panel, accent, edge])
   const boxGeo = useMemo(() => new THREE.BoxGeometry(1.5, 0.95, 0.05), [])
   const edgeGeo = useMemo(() => new THREE.EdgesGeometry(boxGeo), [boxGeo])
   const link = useMemo(

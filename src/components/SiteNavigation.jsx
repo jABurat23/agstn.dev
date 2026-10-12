@@ -3,7 +3,7 @@ import { Moon, Sun } from "lucide-react";
 export default function SiteNavigation({ dark, onToggleTheme }) {
   return (
     <nav
-      className="flex h-24 items-center justify-end border-b border-black/10 dark:border-white/10"
+      className="flex h-24 items-center justify-end border-b border-[var(--hairline)]"
       aria-label="Main navigation"
     >
       <div className="hero-nav-links flex items-center gap-7 font-['Inter'] text-sm font-medium">
@@ -22,7 +22,7 @@ export default function SiteNavigation({ dark, onToggleTheme }) {
         <button
           onClick={onToggleTheme}
           aria-label={`Switch to ${dark ? "light" : "dark"} theme`}
-          className="rounded-full p-2 text-gray-600 transition-colors hover:text-[var(--primary-accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-accent)] dark:text-[var(--secondary-text)]"
+          className="rounded-full p-2 text-[var(--secondary-text)] transition-colors hover:text-[var(--primary-accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary-accent)]"
         >
           {dark ? (
             <Sun aria-hidden="true" className="h-4 w-4" strokeWidth={1.8} />

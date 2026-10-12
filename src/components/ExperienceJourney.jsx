@@ -148,7 +148,7 @@ export default function ExperienceJourney() {
             data-delay="1.4"
             data-fade
             href="#projects"
-            className="hero-cta group mt-10 inline-flex min-h-11 items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-900 transition-colors dark:text-[var(--primary-text)]"
+            className="hero-cta group mt-10 inline-flex min-h-11 items-center gap-3 px-4 py-2.5 text-sm font-medium text-[var(--primary-text)] transition-colors"
           >
             <span>View work</span>
             <ArrowUpRight
@@ -178,10 +178,10 @@ export default function ExperienceJourney() {
           <div className="hero-details mt-8 grid grid-cols-1 gap-x-10 gap-y-4 text-xs sm:grid-cols-3 sm:gap-y-2">
             {heroContent.details.map(({ label, value }) => (
               <div className="flex flex-col gap-1.5" key={label}>
-                <span className="font-medium uppercase tracking-[0.16em] text-gray-500 dark:text-[var(--muted-text)]">
+                <span className="font-medium uppercase tracking-[0.16em] text-[var(--muted-text)]">
                   {label}
                 </span>
-                <span className="tracking-[0.04em] text-gray-700 dark:text-[var(--secondary-text)]">
+                <span className="tracking-[0.04em] text-[var(--secondary-text)]">
                   {value}
                 </span>
               </div>

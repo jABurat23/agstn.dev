@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { AnimationMixer, Group, LoopRepeat, MathUtils } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { PORTRAIT_STATES, lerpDeep } from "./portraitStates";
+import { cssColor } from "../themeColors";
 
 const MODEL_URL = `${import.meta.env.BASE_URL}models/portrait_animation_v2.glb`;
 
@@ -62,6 +63,17 @@ export default function PortraitModel({
   const gltf = useLoader(GLTFLoader, MODEL_URL);
   const portrait = useMemo(() => buildPortrait(gltf.scene), [gltf]);
   const mixer = useMemo(() => new AnimationMixer(portrait.root), [portrait]);
+  // The portrait lights do not change with the theme; read them once.
+  const colors = useMemo(
+    () => ({
+      hemiSky: cssColor("--hemi-sky"),
+      hemiGround: cssColor("--hemi-ground"),
+      key: cssColor("--portrait-key"),
+      rim1: cssColor("--rim-1"),
+      rim2: cssColor("--rim-2"),
+    }),
+    [],
+  );
 
   const groupRef = useRef();
   const hemiRef = useRef();
@@ -170,23 +182,23 @@ export default function PortraitModel({
     <>
       <hemisphereLight
         ref={hemiRef}
-        args={["#cfe6ff", "#0d1420", PORTRAIT_STATES.hero.light.hemi]}
+        args={[colors.hemiSky, colors.hemiGround, PORTRAIT_STATES.hero.light.hemi]}
       />
       <directionalLight
         ref={keyRef}
-        color="#ffffff"
+        color={colors.key}
         intensity={PORTRAIT_STATES.hero.light.key}
         position={[2, 3, 5]}
       />
       <directionalLight
         ref={rimCyanRef}
-        color="#62e6f2"
+        color={colors.rim1}
         intensity={PORTRAIT_STATES.hero.light.rimCyan}
         position={[-4, 1, -3]}
       />
       <directionalLight
         ref={rimBlueRef}
-        color="#5b8cff"
+        color={colors.rim2}
         intensity={PORTRAIT_STATES.hero.light.rimBlue}
         position={[4, -1, -2]}
       />

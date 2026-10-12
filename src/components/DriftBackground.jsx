@@ -2,9 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import DocketObject from './DocketObject'
+import { cssColor, useThemeColors } from '../themeColors'
 
 // Accent colour per section as the page scrolls: cyan -> blue -> light blue -> cyan
-const PALETTE = ['#62E6F2', '#5B8CFF', '#8FA6FF', '#62E6F2'].map((c) => new THREE.Color(c))
+const GLOW_NAMES = ['--glow-1', '--glow-2', '--glow-3', '--glow-4']
+const SHAPE_NAMES = ['--shape-1', '--shape-2', '--shape-3']
+const FOG_NAMES = ['--fog']
+const AMBIENT_NAMES = ['--ambient']
 
 // ---- scroll response tunables (option C: depth travel + parallax) ----
 // Shapes travel along z and are recycled in the same fixed set. Every shape is
@@ -36,7 +40,7 @@ function hasWebGL() {
 function seeded(seed) {
   return () => {
     seed |= 0
-    seed = (seed + 0x6d2b79f5) | 0
+    seed = (seed + 1831565813) | 0
     let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296
@@ -54,6 +58,11 @@ function Shapes({ count, reduce, dark, mobile, glowRef }) {
   const pointer = useRef({ x: 0, y: 0 })
   const st = useRef({ mx: 0, my: 0, sp: 0, tp: 0, sig: '' })
   const mood = useMemo(() => new THREE.Color(), [])
+  const shapeColors = useThemeColors(SHAPE_NAMES, dark)
+  const [fog] = useThemeColors(FOG_NAMES, dark)
+  const [ambient] = useThemeColors(AMBIENT_NAMES, dark)
+  const palette = useMemo(() => GLOW_NAMES.map((name) => new THREE.Color(cssColor(name))), [])
+  const fill = useMemo(() => cssColor('--fill'), [])
 
   const geos = useMemo(
     () => [
@@ -87,7 +96,7 @@ function Shapes({ count, reduce, dark, mobile, glowRef }) {
   }, [count])
   // One material per shape so each can fade on its own near the camera.
   const mats = useMemo(() => {
-    const colors = dark ? [0x16233a, 0x1c2d4a, 0x101a2c] : [0xc4d4ee, 0xd3dff2, 0xb3c7e8]
+    const colors = shapeColors.map((c) => new THREE.Color(c))
     return items.map(
       (o) =>
         new THREE.MeshStandardMaterial({
@@ -99,7 +108,7 @@ function Shapes({ count, reduce, dark, mobile, glowRef }) {
           opacity: 1,
         }),
     )
-  }, [items, dark])
+  }, [items, shapeColors])
   useEffect(() => () => mats.forEach((m) => m.dispose()), [mats])
   useEffect(() => () => geos.forEach((g) => g.dispose()), [geos])
 
@@ -138,9 +147,9 @@ function Shapes({ count, reduce, dark, mobile, glowRef }) {
     const p = s.sp
 
     // mood: light colour + CSS glow follow the scroll position
-    const f = p * (PALETTE.length - 1)
-    const i = Math.min(PALETTE.length - 2, Math.floor(f))
-    mood.copy(PALETTE[i]).lerp(PALETTE[i + 1], f - i)
+    const f = p * (palette.length - 1)
+    const i = Math.min(palette.length - 2, Math.floor(f))
+    mood.copy(palette[i]).lerp(palette[i + 1], f - i)
     if (keyLight.current) keyLight.current.color.copy(mood)
     // only touch the CSS glow when its values actually change (it repaints a full-screen gradient)
     const hex = mood.getHexString()
@@ -194,10 +203,10 @@ function Shapes({ count, reduce, dark, mobile, glowRef }) {
 
   return (
     <>
-      <fog attach="fog" args={[dark ? '#070B12' : '#FFFFFF', 20, 55]} />
-      <ambientLight color={dark ? '#3a4a66' : '#dfe8ff'} intensity={dark ? 2.8 : 2.4} />
+      <fog attach="fog" args={[fog, 20, 55]} />
+      <ambientLight color={ambient} intensity={dark ? 2.8 : 2.4} />
       <directionalLight ref={keyLight} position={[4, 6, 6]} intensity={dark ? 3.9 : 2.6} />
-      <pointLight color="#5B8CFF" position={[-8, 2, 6]} intensity={dark ? 5 : 3} distance={60} decay={1} />
+      <pointLight color={fill} position={[-8, 2, 6]} intensity={dark ? 5 : 3} distance={60} decay={1} />
       <group ref={group}>
         {items.map((o) => (
           <mesh
@@ -228,6 +237,7 @@ export default function DriftBackground({ dark = true }) {
     () => ({ mobile: isMobile(), reduce: prefersReduced(), webgl: hasWebGL() }),
     [],
   )
+  const glow = useMemo(() => cssColor('--glow'), [])
 
   return (
     <>
@@ -242,7 +252,7 @@ export default function DriftBackground({ dark = true }) {
           pointerEvents: 'none',
           opacity: shown ? 1 : 0,
           transition: reduce ? 'none' : 'opacity 1.6s ease',
-          '--gc': '#62E6F2',
+          '--gc': glow,
           '--gx': '74%',
           '--gy': '16%',
           background:
