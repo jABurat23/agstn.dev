@@ -7,47 +7,47 @@
 
 :root {
   /* Surfaces + text */
-  --page-bg: #ffffff;
-  --primary-text: #101a27;
-  --secondary-text: #526274;
-  --muted-text: #5f7082;
-  --primary-accent: #087f8c;
-  --secondary-accent: #315fcb;
-  --hairline: rgb(16 26 39 / 15%);
-  --portrait-halo: rgb(8 127 140 / 13%);
+  --page-bg: #f7f6fb;
+  --primary-text: #14111f;
+  --secondary-text: #453f5a;
+  --muted-text: #5f5a74;
+  --primary-accent: #5b3fd1; /* violet */
+  --secondary-accent: #07717d; /* cyan */
+  --hairline: rgb(20 17 31 / 14%);
+  --portrait-halo: rgb(91 63 209 / 12%);
 
-  /* Selection + scrollbar (same in both themes) */
-  --selection-bg: #ffffff;
-  --selection-text: #000000;
-  --scrollbar: #444444;
-  --scrollbar-hover: #666666;
+  /* Selection (accent over page) + scrollbar */
+  --selection-bg: #5b3fd1;
+  --selection-text: #f7f6fb;
+  --scrollbar: rgb(95 90 116 / 35%);
+  --scrollbar-hover: rgb(95 90 116 / 55%);
 
   /* 3D drift shapes, fog and ambient fill (light) */
-  --shape-1: #c4d4ee;
-  --shape-2: #d3dff2;
-  --shape-3: #b3c7e8;
-  --fog: #ffffff;
-  --ambient: #dfe8ff;
+  --shape-1: #d9d0f2;
+  --shape-2: #e4def7;
+  --shape-3: #cbbfea;
+  --fog: #f7f6fb;
+  --ambient: #e7e0fa;
 
   /* 3D Docket object (light) */
-  --docket-panel: #c4d4ee;
-  --docket-accent: #1aa8bd;
-  --docket-edge: #5b8cff;
+  --docket-panel: #d9d0f2;
+  --docket-accent: #5b3fd1;
+  --docket-edge: #07717d;
 
-  /* 3D key-light palette, blue fill light and glow (same in both themes) */
-  --glow-1: #62e6f2;
-  --glow-2: #5b8cff;
-  --glow-3: #8fa6ff;
-  --glow-4: #62e6f2;
-  --glow: #62e6f2;
-  --fill: #5b8cff;
+  /* 3D key-light cycle (violet -> cyan -> light violet -> violet), fill light, scroll glow */
+  --glow-1: #a78bfa;
+  --glow-2: #62e6f2;
+  --glow-3: #c4b5fd;
+  --glow-4: #a78bfa;
+  --glow: #a78bfa;
+  --fill: #62e6f2;
 
   /* Portrait lights (same in both themes) */
-  --hemi-sky: #cfe6ff;
-  --hemi-ground: #0d1420;
+  --hemi-sky: #dcd4fa;
+  --hemi-ground: #120e22;
   --portrait-key: #ffffff;
-  --rim-1: #62e6f2;
-  --rim-2: #5b8cff;
+  --rim-1: #a78bfa;
+  --rim-2: #62e6f2;
 
   font-family: "Inter", sans-serif;
   color-scheme: light;
@@ -58,24 +58,29 @@
    the 3D layer read the active theme from the document element. */
 .dark,
 :root:has(.dark) {
-  --page-bg: #000000;
-  --primary-text: #ecf4fa;
-  --secondary-text: #a5b4c4;
-  --muted-text: #718398;
-  --primary-accent: #62e6f2;
-  --secondary-accent: #5b8cff;
-  --hairline: rgb(165 180 196 / 16%);
-  --portrait-halo: rgb(98 230 242 / 14%);
+  --page-bg: #0a0a14;
+  --primary-text: #eef0f8;
+  --secondary-text: #aeb3c8;
+  --muted-text: #8388a3;
+  --primary-accent: #a78bfa; /* violet */
+  --secondary-accent: #62e6f2; /* cyan */
+  --hairline: rgb(174 180 200 / 16%);
+  --portrait-halo: rgb(167 139 250 / 14%);
 
-  --shape-1: #16233a;
-  --shape-2: #1c2d4a;
-  --shape-3: #101a2c;
-  --fog: #070b12;
-  --ambient: #3a4a66;
+  --selection-bg: #a78bfa;
+  --selection-text: #0a0a14;
+  --scrollbar: rgb(131 136 163 / 35%);
+  --scrollbar-hover: rgb(131 136 163 / 55%);
 
-  --docket-panel: #16233a;
-  --docket-accent: #62e6f2;
-  --docket-edge: #5b8cff;
+  --shape-1: #1f1a35;
+  --shape-2: #262042;
+  --shape-3: #17122a;
+  --fog: #0a0a14;
+  --ambient: #241e42;
+
+  --docket-panel: #1f1a35;
+  --docket-accent: #a78bfa;
+  --docket-edge: #62e6f2;
 }
 
 .dark {

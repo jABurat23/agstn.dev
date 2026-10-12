@@ -90,14 +90,22 @@ Defined in `src/index.css` under `:root` (light) and `.dark`:
 
 | Token | Purpose |
 |-------|---------|
-| `--ink` | Page background |
+| `--page-bg` | Page/body background (also the selection text colour) |
 | `--primary-text` | Headings, high-contrast text |
 | `--secondary-text` | Body copy |
 | `--muted-text` | Metadata, labels |
-| `--primary-accent` | Cyan (glow, hover, focus) |
-| `--secondary-accent` | Blue (secondary glow) |
+| `--primary-accent` | Violet (glow, hover, focus ring, selection) |
+| `--secondary-accent` | Cyan (secondary glow, rim) |
 | `--hairline` | Dividers, borders |
 | `--portrait-halo` | Portrait radial glow |
+| `--selection-bg` / `--selection-text` | Text selection |
+| `--scrollbar` / `--scrollbar-hover` | Scrollbar thumb |
+| `--shape-1..3`, `--fog`, `--ambient` | Drift background shapes, fog, ambient light |
+| `--docket-panel` / `--docket-accent` / `--docket-edge` | Docket 3D object |
+| `--glow-1..4`, `--glow`, `--fill` | Key-light cycle, scroll glow, fill light |
+| `--hemi-sky`, `--hemi-ground`, `--portrait-key`, `--rim-1`, `--rim-2` | Portrait 3D lights |
+
+Violet (`--primary-accent`) and cyan (`--secondary-accent`) act as light sources — glow, hover, focus and thin accents — never large fills. The 3D layer reads these tokens at runtime through `src/themeColors.js`, so no component hard-codes a colour.
 
 ## Deployment
 

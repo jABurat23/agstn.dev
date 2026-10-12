@@ -25,7 +25,10 @@ Check: `npm run build`.
 - Direction: cinematic editorial, minimal and clean. One focal point per section, generous space, open layouts with hairlines. No card grids, heavy shadows or glassmorphism.
 - **No terminal or code-editor visuals:** no window-dot headers, `~/PATH` titles, `//` or `>` labels, shell prompts, block cursors, or HUD text.
 - Fonts: **Changa One** for the wordmark, **Inter** for content, **JetBrains Mono** only for tiny metadata labels.
-- Colors are CSS variables in `src/index.css` (`--ink`, `--primary-text`, `--secondary-text`, `--muted-text`, `--primary-accent` cyan, `--secondary-accent` blue, `--hairline`). Don't hard-code colors. Cyan and blue act as light sources, not large blocks.
+- Colors are CSS variables in `src/index.css` (the single source of truth). Don't hard-code colors in markup or components.
+  - Surfaces/text: `--page-bg`, `--primary-text`, `--secondary-text`, `--muted-text`, `--hairline`, `--portrait-halo`, `--selection-bg`, `--selection-text`, `--scrollbar`, `--scrollbar-hover`.
+  - Accents: `--primary-accent` is **violet**, `--secondary-accent` is **cyan**. Violet and cyan act as light sources (glow, hover, focus ring, thin accents), never large fills.
+  - 3D colors are read from the same tokens via `src/themeColors.js` — never hard-code hex in components. Tokens: `--shape-1..3`, `--fog`, `--ambient`, `--docket-panel`/`--docket-accent`/`--docket-edge`, `--glow-1..4`, `--glow`, `--fill`, `--hemi-sky`, `--hemi-ground`, `--portrait-key`, `--rim-1`, `--rim-2`.
 - Light and dark themes must both work. Don't just invert dark for light. Dark mode is **class-based**: the app toggles `.dark` on its root element, and `@custom-variant dark (&:where(.dark, .dark *))` in `src/index.css` wires Tailwind's `dark:` utilities to that class (not the OS preference).
 
 ## Content rules
