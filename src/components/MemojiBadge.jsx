@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import memoji1 from "../assets/memoji-1.png";
-import memoji2 from "../assets/memoji-2.png";
-import memoji3 from "../assets/memoji-3.png";
-import memoji4 from "../assets/memoji-4.png";
-import memoji5 from "../assets/memoji-5.png";
+import memoji1 from "../assets/memoji/memoji-1.webp?no-inline";
+import memoji2 from "../assets/memoji/memoji-2.webp?no-inline";
+import memoji3 from "../assets/memoji/memoji-3.webp?no-inline";
+import memoji4 from "../assets/memoji/memoji-4.webp?no-inline";
+import memoji5 from "../assets/memoji/memoji-5.webp?no-inline";
 
 const EXPRESSIONS = [memoji1, memoji2, memoji3, memoji4, memoji5];
 const MIN_DELAY = 4000;
@@ -33,11 +33,22 @@ export default function MemojiBadge() {
   useEffect(() => {
     if (reduced) return undefined;
 
-    // Preload every expression so a swap never flickers.
-    EXPRESSIONS.forEach((src) => {
-      const img = new Image();
-      img.src = src;
-    });
+    // The first expression is rendered immediately (eager). Warm the other four
+    // once the browser is idle, still well before the first swap at 4s+, so a
+    // swap never flickers.
+    const preloadRest = () => {
+      EXPRESSIONS.slice(1).forEach((src) => {
+        const img = new Image();
+        img.src = src;
+      });
+    };
+    let idleHandle = 0;
+    let idleFallback = 0;
+    if ("requestIdleCallback" in window) {
+      idleHandle = window.requestIdleCallback(preloadRest, { timeout: 2000 });
+    } else {
+      idleFallback = window.setTimeout(preloadRest, 1000);
+    }
 
     let timer = 0;
     const schedule = () => {
@@ -67,6 +78,8 @@ export default function MemojiBadge() {
     return () => {
       window.clearTimeout(timer);
       document.removeEventListener("visibilitychange", onVisibility);
+      if (idleHandle && "cancelIdleCallback" in window) window.cancelIdleCallback(idleHandle);
+      window.clearTimeout(idleFallback);
     };
   }, [reduced]);
 
@@ -75,8 +88,8 @@ export default function MemojiBadge() {
       key={i}
       src={EXPRESSIONS[slots[i]]}
       alt=""
-      width={500}
-      height={500}
+      width={192}
+      height={192}
       decoding="async"
       draggable={false}
       className="absolute inset-0 h-full w-full object-cover"
@@ -97,8 +110,8 @@ export default function MemojiBadge() {
               <img
                 src={EXPRESSIONS[0]}
                 alt=""
-                width={500}
-                height={500}
+                width={192}
+                height={192}
                 decoding="async"
                 draggable={false}
                 className="absolute inset-0 h-full w-full object-cover"
